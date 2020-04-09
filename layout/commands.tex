@@ -1,0 +1,41 @@
+% Own commands and typographic styles for this documentation
+% ------------------------------------------------------------------------------
+
+% easy change of font e.g.: \changefont{cmss}{sbc}{n}
+\newcommand{\changefont}[3]{\fontfamily{#1} \fontseries{#2} \fontshape{#3} \selectfont}
+
+% ------------------------------------------------------------------------------
+% Abbreviations with correct typographic space
+%-------------------------------------------------------------------------------
+\input{layout/\lang/commands} % language-specific text line
+
+
+
+\newcommand{\bs}{$\backslash$}
+
+% Creates a list element with bold caption
+\newcommand{\itemd}[2]{\item{\textbf{#1}}\\{#2}}
+
+%% -----------------------------------------------------------------------------
+%% some commands concerning to citation
+%% -----------------------------------------------------------------------------
+%\newcommand{\Zitat}[2][\empty]{\ifthenelse{\equal{#1}{\empty}}{\citep{#2}}{\citep[#1]{#2}}}
+%
+%% printing of authors
+%\newcommand{\AutorName}[1]{\textsc{#1}}
+%\newcommand{\Autor}[1]{\AutorName{\citeauthor{#1}}}
+%
+%% -----------------------------------------------------------------------------
+%% various commands to semantically mark words
+%% -----------------------------------------------------------------------------
+%\newcommand{\NeuerBegriff}[1]{\textbf{#1}}
+%\newcommand{\Fachbegriff}[1]{\textit{#1}}
+%
+%\newcommand{\Eingabe}[1]{\texttt{#1}}
+%\newcommand{\Code}[1]{\texttt{#1}}
+%\newcommand{\Datei}[1]{\texttt{#1}}
+%
+%\newcommand{\Datentyp}[1]{\textsf{#1}}
+%\newcommand{\XMLElement}[1]{\textsf{#1}}
+%\newcommand{\Webservice}[1]{\textsf{#1}}
+%

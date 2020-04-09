@@ -1,0 +1,60 @@
+% -- coversheet.tex -----------------------------------------------------------
+%
+% Design of the document's cover sheet:
+% - Embedding and formatting logos
+% - names can be found in 'Meta.tex'   
+% ------------------------------------------------------------------------------
+
+\thispagestyle{empty} % changed from 'plain' to 'empty'
+\begin{titlepage}
+\vspace*{-3cm}
+%%------------------------------------------------------------------------------
+%%   insert organisation logo
+%%------------------------------------------------------------------------------
+\begin{figure}[h]
+\centering
+\includegraphics[width=0.25\textwidth]{schlizbaeda.png}
+\end{figure}
+
+\begin{center}
+\LARGE{\textbf{\Dokumentart}}\\[1.5ex] 
+\Large{\dots und ein Erfahrungsbericht zur \Bezeichnung}\\[4ex]
+%%------------------------------------------------------------------------------
+%%   Title of the document
+%%------------------------------------------------------------------------------
+\noindent\rule[1ex]{\textwidth}{3pt} % vertical line
+%\huge{\textbf{\titel}}\\[1.5ex]      % TITLE OF DOCUMENT
+\textbf{\titel}\\[1.5ex]             % TITLE OF DOCUMENT (small font for long caption)
+\noindent\rule[1ex]{\textwidth}{3pt} 
+%\LARGE{\textbf{\untertitel}}\\[6ex]
+%\LARGE{\textbf{\art}}\\[1.5ex]
+\\[2ex]
+
+\normalsize
+%%------------------------------------------------------------------------------
+%%   cover picture
+%%------------------------------------------------------------------------------
+\textbf{\\}
+\begin{figure}[h]
+\centering
+\includegraphics[width=12cm]{coverpic.jpg}
+\end{figure}
+
+%%------------------------------------------------------------------------------
+%%   audacious icon, Copyright, CD player icon
+%%------------------------------------------------------------------------------
+\begin{tabular}{lllr}\\
+\hline
+% line with icons and copyright
+\parbox[c][55px]{0.25\textwidth}{\includegraphics[height=35px]{GFDL_Logo.png}} & 
+\parbox[c]{0.45\textwidth}{GNU Free Documentation License v1.3\\ \copyright\ 2020 by schlizbäda} &
+\parbox[c]{0.12\textwidth}{\publication} &
+\parbox[c][50px]{0.08\textwidth}{\includegraphics[height=35px]{RPi-Logo-Reg-SCREEN.png}}\\
+\hline
+\end{tabular}
+
+\end{center}
+
+\input{layout/\lang/coversheet} % language-specific text line
+
+\end{titlepage}

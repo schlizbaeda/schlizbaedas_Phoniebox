@@ -1,0 +1,137 @@
+% ------------------------------------------------------------------------------
+% FORMAT TEMPLATE OF DOCUMENTATION / USER'S MANUAL
+% ------------------------------------------------------------------------------
+
+
+% DOCUMENT HEADER---------------------------------------------------------------
+%   This template is based on "scrreprt" as part of the koma script.
+% ------------------------------------------------------------------------------
+\documentclass[
+    11pt,      % font size
+    DIV10,
+    ngerman,   % language-specific package (umlauts, hyphenation etc.)
+    textgreek,
+    a4paper,   % paper size and format
+    oneside,   % single-sided document
+    titlepage, % usage of cover sheet
+    parskip=half,          % spacing between paragraphs (half line)
+    headings=normal,       % reduce size of captions
+    listof=totoc,          % add lists to table of contents
+    bibliography=totoc,    % add bibliography to table of contents
+    index=totoc,           % add indices to table of contents
+    captions=tableheading, % add annotations under figures 
+    final                  % document's state (final/draft)
+]{scrreprt}
+
+% LANGUAGE OF DOCUMENT ---------------------------------------------------------
+% Adjustment of the document's language ----------------------------------------
+%\usepackage[english]{babel} 
+\usepackage[ngerman]{babel}
+
+% Here you can select the document's language. Any language-specific 
+% part will be replaced. 
+%\newcommand{\lang}{en}
+\newcommand{\lang}{de}
+% ------------------------------------------------------------------------------
+
+
+% global Definitions -----------------------------------------------------------
+%   meta-data of the document like title, author, date
+%   are defined in global_defs.tex and can be used globally
+% ------------------------------------------------------------------------------
+\input{layout/global_defs}
+
+% used packages ----------------------------------------------------------------
+%   used LaTeX packages are moved to the file packages.tex
+%   to kkep this file tiny.
+% ------------------------------------------------------------------------------
+\input{layout/packages}
+
+% activate creation of Index and list of abbreviations -------------------------
+\makeindex
+\makenomenclature
+
+% Header, footer, page margins etc. --------------------------------------------
+\input{layout/style}
+
+% own LaTeX commands
+\include{layout/commands}
+
+% DOCUMENT ---------------------------------------------------------------------
+%   The contents of the document starts here.
+%   Parts of the document are moved to external files. 
+%   Here these files will be included.
+% ------------------------------------------------------------------------------
+% ------------------------------------------------------------------------------
+\begin{document}
+
+% enumberation of subsubsections
+\setcounter{secnumdepth}{3}
+\setcounter{tocdepth}{3}
+
+% Page numbering ---------------------------------------------------------------
+%   Prefaces are numbered pages are numbered in capital Roman numerals.
+% ------------------------------------------------------------------------------
+%%%%\pagenumbering{Roman} % I dislike this!
+\pagenumbering{arabic}    % Take arabic numbers everywhere
+
+% cover sheet and abstract without page numbering
+\cfoot{}
+\include{layout/coversheet}
+%\include{layout/abstract}
+\cfoot{- \pagemark ~-}
+
+\tableofcontents   % table of contents
+\listoffigures     % list of figures
+\listoftables      % list of tables
+\renewcommand{\lstlistlistingname}{Verzeichnis der Listings}
+%\lstlistoflistings % list of source code listings
+
+%% list of abbreviations -------------------------------------------------------
+%\input{Kapitel/Glossar}
+%% for correct caption in the header line
+%\clearpage\markboth{\nomname}{\nomname} 
+%\printnomenclature
+%\label{sec:Glossar}
+
+
+% arabic page numbers in the main part -----------------------------------------
+%%%%\clearpage
+%%%%\pagenumbering{arabic}
+
+
+% ##############################################################################
+% ----------   including of chapters   -----------------------------------------
+% ##############################################################################
+\input{chapter/\lang/chapter1}
+\input{chapter/\lang/chapter2}
+\input{chapter/\lang/chapter3}
+
+% ##############################################################################
+% ------------------------------------------------------------------------------
+% ##############################################################################
+
+
+
+
+%%%%%%%%%% % APPENDIX ---------------------------------------------------------------------
+%%%%%%%%%% %   The contents of the appendix are included similar to the chapters.
+%%%%%%%%%% %   This is done in the file appendix.tex
+%%%%%%%%%% %   %%%% Page numbering is done with small Roman numerals.
+%%%%%%%%%% % ------------------------------------------------------------------------------
+%%%%%%%%%% \begin{appendix}
+%%%%%%%%%%     \clearpage
+%%%%%%%%%% %%%%    \pagenumbering{roman}
+%%%%%%%%%%     \chapter{Anhang}
+%%%%%%%%%%     \label{sec:appendix}
+%%%%%%%%%%     % Adjust enumberation margin in tables
+%%%%%%%%%%     \setdefaultleftmargin{1em}{}{}{}{}{}
+%%%%%%%%%%     \input{chapter/\lang/appendix}
+%%%%%%%%%% \end{appendix}
+
+% Index ------------------------------------------------------------------------
+%   activate the following line to add an index.
+% ------------------------------------------------------------------------------
+%\printindex
+
+\end{document}

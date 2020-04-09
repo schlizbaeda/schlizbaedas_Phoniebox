@@ -1,0 +1,56 @@
+
+
+% Line spacing 1.5 lines -----------------------------------------------------
+\onehalfspacing
+
+% ------------------------------------------------------------------------------
+% ----------- Page margins -----------------------------------------------------
+% ------------------------------------------------------------------------------
+
+\setlength{\topskip}{\ht\strutbox} % removes warnings from geometry
+\geometry{paper=a4paper,left=30mm,right=25mm,top=20mm,bottom=40mm}
+% additional binding offset (left margin)
+
+% ------------------------------------------------------------------------------
+% ----------- Headers and Footers ----------------------------------------------
+% ------------------------------------------------------------------------------
+
+\pagestyle{scrheadings}
+% Header and footer even on initial chapter pages
+\renewcommand*{\chapterpagestyle}{scrheadings} 
+% Font of header line
+\renewcommand{\headfont}{\normalfont}
+
+%%% HEADER LINE %%%
+\ihead{\hspace*{16pt} \large{\textsc{\titel}} \\[1ex] \textit{\hspace*{16pt} \headmark}}
+\chead{}
+%\ohead{\includegraphics[scale=0.06]{\logo}}
+\setlength{\headheight}{21mm} % Height of header
+% Widen the header beyond the text
+\setheadwidth[-20pt]{textwithmarginpar} % negative values move to left side, 0=center
+\setheadsepline[text]{0.4pt}[\hspace{20pt}] % Separator line below header
+
+%%% FOOTER %%%
+\ifoot{}  %\ifoot{\copyright\ \autor} add author optionally
+\cfoot{- \pagemark ~-}
+\ofoot{}
+
+% ------------------------------------------------------------------------------
+% ----------- other typographical settings -------------------------------------
+% ------------------------------------------------------------------------------
+
+\frenchspacing % Creates a little bit more space after a full stop
+
+% avoid orphan lines and widow lines
+\clubpenalty = 10000
+\widowpenalty = 10000 
+\displaywidowpenalty = 10000
+
+% Format source code output (listings?)
+\lstset{numbers=left, numberstyle=\tiny, numbersep=5pt, breaklines=true}
+\lstset{emph={square}, emphstyle=\color{red}, emph={[2]root,base}, emphstyle={[2]\color{blue}}}
+
+% continuous numbering of foot notes
+\counterwithout{footnote}{chapter}
+
+%\parindent 0pt % no insertion after NewLine

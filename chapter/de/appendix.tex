@@ -1,0 +1,71 @@
+% appendix.tex -- de (German)
+Der Anhang enthält die EAGLE-Zeichnungen zur TinkerKit-Zusatzplatine:
+\begin{compactitem}
+	\item Verdrahtungskonzept der TinkerKit-Taster
+	\item Schaltplan der TinkerKit-Zusatzplatine
+	\item Leiterplatte
+	\begin{compactitem}
+		\item Abmessungen
+		\item Oberseite
+		\item Unterseite
+	\end{compactitem}
+%	\item Bestückung
+\end{compactitem}
+
+\section{Bestückvarianten}
+Die Leiterplatte kann so bestückt werden, dass sie funktional dem in
+Abschnitt \ref{sect:TinkerKitBoard} beschriebenen Prototypen
+entspricht.\\
+Alternativ kann die Bestückung für sechs über Spannungsteiler
+unterscheidbare Taster an den analogen Eingängen der weißen 
+TinkerKit-Anschlüsse ausgeführt werden. Die Taster für die digitalen
+TinkerKit-Anschlüsse (orange) können an anderer Stelle (\zB als
+Schultertasten am Gehäuse) verbaut werden und an der Stiftleiste X1
+angeschlossen werden.
+
+Die gewünschte Version kann über die dazugehörige Bestückvariante aus
+Tabelle \ref{tab:variants} festgelegt werden:
+
+\begin{table}[h]
+\centering
+\renewcommand{\arraystretch}{1.5}
+\begin{tabular}{|p{0.23\textwidth}|p{0.16\textwidth}|p{0.18\textwidth}|p{0.15\textwidth}|p{0.16\textwidth}|}
+\hline
+\textbf{Version}								&	\textbf{RDIG\_ORL, RDIG\_ORR}	&	\textbf{RANA\_ORL, RANA\_ORR}	&	\textbf{RDN\_ORL, RDN\_ORR}	&	\textbf{RDN\_PINL, RDN\_PINR}\\
+\hline
+	vier analoge Taster,\newline zwei digitale Taster	&	0R								&	nicht bestückt					&	1k							&	nicht bestückt\\
+\hline
+	sechs analoge Taster,\newline zwei externe Taster	&	nicht bestückt					&	0R								&	68k oder 82k (t.b.d.)		&	1k\\
+\hline
+\end{tabular}
+\vspace{0.5cm}
+\caption{Bestückvarianten}
+\label{tab:variants}
+\end{table}
+
+
+
+
+%---------------------------------------------------------------
+%  conception
+%---------------------------------------------------------------
+%%%%\includepdf[pages=-, portrait, scale=1.0, addtotoc={1,section,0,Konzept,Konzept} ]{./pics/eagle/TinkerKit-concept.pdf}
+\includepdf[pages=-, , scale=1.0, addtotoc={1,section,0,Konzept,Konzept} ]{./pics/eagle/TinkerKit-concept.pdf}
+
+%---------------------------------------------------------------
+%  schematics
+%---------------------------------------------------------------
+\includepdf[pages=-, , scale=1.0, addtotoc={1,section,0,Zusatzplatine Schaltplan,Zusatzplatine Schaltplan} ]{./pics/eagle/TinkerKit-board_SCH.pdf}
+
+%---------------------------------------------------------------
+%  PCB
+%---------------------------------------------------------------
+\includepdf[pages=-, , scale=1.0, addtotoc={1,section,0,Zusatzplatine Abmessungen,Zusatzplatine Abmessungen} ]{./pics/eagle/TinkerKit-board_MEAS.pdf}
+\includepdf[pages=-, , scale=1.0, addtotoc={1,section,0,Zusatzplatine Oberseite,Zusatzplatine Oberseite} ]{./pics/eagle/TinkerKit-board_TOP.pdf}
+\includepdf[pages=-, , scale=1.0, addtotoc={1,section,0,Zusatzplatine Unterseite,Zusatzplatine Unterseite} ]{./pics/eagle/TinkerKit-board_BOT.pdf}
+
+%%---------------------------------------------------------------
+%%  parts
+%%---------------------------------------------------------------
+%\includepdf[pages=-, , scale=1.0, addtotoc={1,section,0,Leiterplatte,Leiterplatte} ]{./pics/eagle/TinkerKit-board_TOPparts.pdf}
+%\includepdf[pages=-, , scale=1.0, addtotoc={1,section,0,Leiterplatte,Leiterplatte} ]{./pics/eagle/TinkerKit-board_BOTparts.pdf}

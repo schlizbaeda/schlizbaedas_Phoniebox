@@ -1,0 +1,580 @@
+% chapter2.tex -- de (German)
+\chapter{Technischer Aufbau von {\autor}s \Bezeichnung}
+\label{cha:technical}
+
+Die {\Bezeichnung} ist ein open-source-Projekt. Deshalb unterscheidet
+sich beinahe jede gebaute {\Bezeichnung} von allen anderen. Dies gilt
+nicht nur hinsichtlich der Gestaltung des Gehäuses, sondern auch für die
+technische Umsetzung. Impressionen von den {\Bezeichnung}en der letzten
+Jahre gibt es auf den Kalendern von \textit{MiczFlor} für 2019 und
+2020:\\
+\url{https://github.com/MiczFlor/RPi-Jukebox-RFID#phoniebox-the-rpi-jukebox-rfid}
+%2019: \url{https://drive.google.com/file/d/1NKlertLP0nIKOsHrcqu5pxe6NZU3SfS9/view}\\
+%2020: \url{https://drive.google.com/file/d/1krb8G8Td1Vrf3sYWl44nZyuoJ0DIC5vX/view}
+
+In diesem Kapitel wird der hard- und softwareseitige Aufbau des
+konkreten Exemplars von {\autor} beschrieben. Es werden auch Hinweise 
+gegeben, warum eine bestimmte Umsetzung gewählt wurde. Dabei muss es
+sich nicht unbedingt um die optimale Lösung handeln!
+
+\section{Verwendete Komponenten / Stückliste}
+\begin{table}[h]
+\centering
+\renewcommand{\arraystretch}{1.11}
+\begin{tabular}{|p{0.05\textwidth}|p{0.38\textwidth}|p{0.22\textwidth}|p{0.10\textwidth}|p{0.10\textwidth}|}
+\hline
+\textbf{Anz.}	&	\textbf{Artikel}					&	\textbf{Bestellnummer}		&	\textbf{Lieferant}	&	\textbf{Einzel-\newline preis}\\
+\hline
+		1x		&	Holzkiste 33cm*24cm					&	\texttt{VARIERA 21386}		&	IKEA				&	14,99\\
+\hline
+		1x		&	Sperrholzplatte Kiefer 33cm*24cm	&	Holzzuschnitt	 			&	OBI					&	2,40\\
+\hline
+		1x		&	{\RPi} 3B							&	\texttt{RASPBERRY PI 3}		&	reichelt			&	35,80\\
+\hline
+		1x		&	SD-Karte 32GB:\newline
+					Sandisk Extreme A1 32GB				&	\texttt{SDSQXAF032GGN6MA}	&	reichelt			&	11,50\\
+\hline
+		1x		&	HifiBerry \miniamp					&	\texttt{RPI HB MINI AMP}	&	reichelt			&	19,50\\
+\hline
+		2x		&	Lautsprecher Visaton F 8SC-8		&	\texttt{VIS F 8SC-8}		&	reichelt			&	10,25\\
+\hline
+		2x		&	Schutzgitter Visaton 8 ES			&	\texttt{VIS 4634}			&	reichelt			&	6,60\\
+\hline
+		1x		&	LED-beleuchteter Taster, rot		&	\begin{scriptsize}\texttt{RAFI 1.15.106.501/1300}\end{scriptsize}	&	reichelt			&	6,50\\
+\hline
+		1x		&	LED-beleuchteter Taster, grün		&	\begin{scriptsize}\texttt{RAFI 1.15.106.502/1500}\end{scriptsize}	&	reichelt			&	9,10\\
+\hline
+		2x		&	LED-beleuchteter Taster, gelb		&	\begin{scriptsize}\texttt{RAFI 1.15.106.503/1400}\end{scriptsize}	&	reichelt			&	7,99\\
+\hline
+		2x		&	LED-beleuchteter Taster, blau		&	\begin{scriptsize}\texttt{RAFI 1.15.106.504/1600}\end{scriptsize}	&	reichelt			&	10,80\\
+\hline
+		1x		&	USB RFID-Reader 125kHz				&	\textit{Neuftech}			&	amazon				&	10,89\\
+\hline
+		100x	&	RFID-Karte 125kHz					&	\textbf{--}					&	amazon				&	21,28\\
+\hline
+		1x		&	26000mAh Powerbank 4,8A				&	\textit{EasyAcc}			&	amazon				&	48,99\\
+\hline
+		1x		&	Pimoroni \onoffshim					&	\textit{Pimoroni}			&	amazon				&	9,50\\
+\hline
+		1x		&	1,3inch OLED I2C-Display\newline
+					128x64 Pixel						&	\textit{AZDelivery}			&	amazon				&	8,49\\
+\hline
+\end{tabular}
+\vspace{0.5cm}
+\caption{Verwendete Komponenten bei {\autor}s \Bezeichnung}
+\end{table}
+
+Bei der Auswahl der Komponenten spielte ein möglichst niedriger Preis
+eine eher untergeordnete Rolle. Vielmehr wurden bereits vorhandene Teile
+verwendet. Bei Neubeschaffungen wurde auf Artikel gesetzt, mit denen
+bereits gute Erfahrungen gemacht wurden.
+
+\subsection{Gehäuse}
+Die IKEA-Holzkiste war eigentlich für ein anderes Projekt gedacht. Sie
+ist zwar formschön, aber die schrägen Wände ohne rechte Winkel machen
+den Einbau nicht einfacher! Gott sei Dank ist das Ding nun verbaut!\\
+\url{https://www.ikea.com/de/de/p/variera-kasten-mit-griff-bambus-70226053/}
+
+\subsection{{\RPi} 3B}
+Ein {\RPi} 3B ist für diese Anwendung performant genug und er bietet
+eine ausreichende \textit{Schwuppdizität}. Außerdem sind darauf bereits
+onboard ein WLAN- und ein Blue\-tooth-Mo\-dul verbaut. Ein {\RPi} 4
+wäre zwar noch etwas schneller, verbraucht aber mehr Strom und
+entwickelt deshalb mehr Wärme. Neben anderer daraus resultierender
+Nachteile und der erforderlichen Gegenmaßnahmen reduziert sich dadurch
+auch die Akkulaufzeit.\\
+\url{https://www.raspberrypi.org/products/raspberry-pi-3-model-b/}
+
+\subsection{HifiBerry \miniamp}
+\url{https://www.hifiberry.com/shop/boards/miniamp/}\\
+Ein kleiner Class-D-Verstärker mit 2x3W Maximalleistung an
+4\textOmega-Lautsprechern, der speziell für den {\RPi} entwickelt wurde.
+In Kombination mit den Visaton-Lautsprechern wird damit ein durchaus
+passabler Klang erzeugt, der für kleinere Kinder mehr als ausreichend,
+aber noch nicht zu laut ist.\\
+In manchen Anleitungen wird die Verwendung von kleinen PC-Aktivboxen
+empfohlen und bisweilen auch noch, als Audioquelle dafür die originale
+vierpolige Klinkenbuchse das {\RPi} zu verwenden. Dies hat in meinen
+Augen zwei gravierende Nachteile:
+\begin{compactitem}
+\item{Die Audioqualität an der originalen Klinkenbuchse des {\RPi} ist eher schlecht, da die Audiosignale über eine windig umgesetzte Pulsweitenmodulation erzeugt werden.}
+\item{Die in diversen Foren und Tutorials empfohlenen Trust-Leto Aktivboxen sind billigste Chinaware.}
+\end{compactitem}
+Im {\forum} habe ich dies auch schon mit drastischen Worten
+entsprechend kundgetan:{ }
+\begin{scriptsize}\url{https://forum-raspberrypi.de/forum/thread/13144-projekt-jukebox4kids-jukebox-fuer-kinder/?postID=384062#post384062}\end{scriptsize}
+
+\subsection{Bedientaster}
+Welche Taster hierfür verwendet werden, ist reine Geschmacksache. Da ich
+derjenige bin, der bei vermeintlichen Schnäppchen immer die fehlerhaften
+\bzw ganz kaputten Teile er\-wischt, konnte ich mir die Arcade-Buttons
+vom freundlich grinsenden Chinesen verkneifen und griff zu den Tastern
+eines namhaften Herstellers (Rafi). \textbf{Ein echter Vorteil dieser
+Taster ist, dass die verbauten LEDs so hell sind, dass bereis 1-2mA für
+ausreichende Leuchtintensität sorgen und somit nur mit einem 
+Vorwiderstand direkt an den GPIOs des {\RPi} angeschlossen werden
+können.}\\
+\url{https://components.rafi.de/DE/DE/produktstruktur/taster/sonstige/leuchtdrucktaster/leuchtdrucktaster-9-1-mm/leuchtdrucktaster-9-1-mm-mit-eingebauter-led}
+
+\subsection{Neuftech USB-RFID-Reader}
+Mangels jeglichen Vorwissens auf diesem Gebiet beschloss ich, mich an
+die Empfehlungen der diversen Tutorials zu halten. Es ist ein
+chinesisches Qualitätsprodukt, das tut, was es soll: Es liest die Karten
+problemlos durch die ca. 8mm starke Holzwand der IKEA-Kiste. Sowohl die
+beigefügte Dokumentation als auch die im Internet geht jedoch gegen
+Null!\\
+\url{https://www.amazon.de/Neuftech-Reader-Kartenleseger%C3%A4t-Kartenleser-Kontaktlos/dp/B018OYOR3E}
+
+\subsection{Stromversorgung}
+Die \textit{EasyAcc}-Powerbank zeichnet sich dadurch aus, dass sie zum
+Aufladen jederzeit an die Stromversorgung angeschlossen werden kann,
+ohne den {\RPi} dabei auch nur kurzzeitig stromlos zu schalten. Dadurch
+wird der Ärger durch unkontrolliert ausgeschaltete {\RPi}s von vorne
+herein vermieden. Es mag günstigere Powerbänke geben, die dies auch
+können, aber der Forenkonsens geht eindeutig zu den
+\textit{EasyAcc}-Produkten.\\
+\url{https://www.easyacc.com/de/670-easyacc-26000mah-power-bank.html}\\
+Von \textit{EasyAcc} gibt es eine deutlich günstigere Variante mit
+"`nur"' 20000mAh Ladekapazität, die in den meisten {\Bezeichnung}en
+verwendet wird. Aber der {\autor} gönnte sich getreu dem Motto
+"`Klotzen, nicht kleckern!"' die größere Variante mit 26000mAh und auch
+die funktioniert problemlos.\\
+Zum Ein- und Ausschalten der {\Bezeichnung} wird der \textit{\onoffshim}
+von Pimoroni verwendet. Allerdings musste der \textit{gepimpt} werden,
+siehe Abschnitt \ref{sect:onoffshim_relay}\\
+\url{https://shop.pimoroni.com/search?type=product&q=onoff+shim}
+
+\subsection{OLED-Display}
+Hier wurde 1:1 die Erweiterung von \textbf{@splitti79} aus dem {\forum}
+nachgebaut:\\
+\url{https://forum-raspberrypi.de/forum/thread/41465-oled-display-fuer-die-phoniebox/}\\
+\url{https://github.com/splitti/oled_phoniebox}\\
+Artikel bei amazon: \url{https://www.amazon.de/gp/product/B078J78R45}
+
+
+\section{Selbstgebaute Teile}
+\textit{Die \Bezeichnung, das Wochenend-Projekt -- }\url{http://phoniebox.de/}\\
+Ganz so schnell ging's bei mir leider nicht. Auf dem Weg zu meiner Box
+gab es diverse Fallstricke, die ich im {\forum} im Thread\\
+\begin{scriptsize}\url{https://forum-raspberrypi.de/forum/thread/45820-phoniebox-2-0-rc7-mpd-spielt-ueber-rfid-karte-gewaehlte-musik-nicht-ab/}\end{scriptsize}\\
+schilderte. Dort bekam ich viele Hilfestellungen zur Lösung der
+einzelnen Punkte. Mit dem heutigen Wissen würde ich einem
+\Bezeichnung-Neu\-ling folgende Tipps mitgeben:\\
+\begin{scriptsize}\url{https://forum-raspberrypi.de/forum/thread/46231-hilfe-erste-phoniebox-totaler-anfaenger/?postID=415862#post415862}\end{scriptsize}
+
+Für eine gut funktionierende {\Bezeichnung} ist eine feste, stabile und
+wirklich haltende Verkabelung unabdingbar! Alle Verbindungen, die beim
+fliegenden Testaufbau auf einem Steckbrett mit Jumperkabeln (sogenannten
+DuPont-Kabeln) und Ähnlichem aufgebaut wurden, müssen beim Einbau in die
+Box sauber verlötet oder gecrimpt werden. Es lohnt sich auch, gute
+Steckverbinder einzubauen, um die Box zu Wartungszwecken später wieder
+leichter zerlegen zu können. Selbst die von mir verwendeten Stift- und
+Buchsenleisten im 2,54mm-Raster sind eigentlich noch nicht zuverlässig
+genug und insbesondere bei Einzelbuchsen zu wackelig.
+
+Die gesamte Hardware an der GPIO-Leiste des {\RPi} wurde gestapelt:
+Direkt auf den RPi wird der HifiBerry {\miniamp} gesteckt. Da der
+{\miniamp} oben keine Stiftleiste hat, auf der weitere RPi-HATs gesteckt
+werden könnten, habe ich selbst auf der Oberseite eine 40-polige
+Stiftleiste aufgelötet. Auf dieser Stiftleiste habe ich gleich den
+Pimoroni {\onoffshim} verlötet, siehe Abbildung
+\ref{fig:gpio_miniamp_onoffshim}.
+
+\begin{figure}[!h]
+\centering
+\includegraphics[width=0.49\textwidth]{GPIO/OnOffShim_on_MiniAmp_01.JPG}
+\includegraphics[width=0.49\textwidth]{GPIO/OnOffShim_on_MiniAmp_02.JPG}
+\caption{HifiBerry {\miniamp} mit aufgelötetem Pimoroni \onoffshim}
+\label{fig:gpio_miniamp_onoffshim}
+\end{figure}
+
+Ganz oben auf diesen \textit{Turm} wird schließlich eine
+Lochrasterplatine gesteckt, die die Anschlüsse für die Bedientaster, die
+LEDs und das OLED-Display enthält, siehe Abbildung
+\ref{fig:gpio_complete}.\\
+Ich habe die Lochrasterplatine deshalb ganz oben aufgesteckt,
+dass die Bauteile auf der Platine freier platziert werden können und
+die Stiftleisten beim Anstecken der Taster und LEDs besser zugänglich
+sind. 
+
+\begin{figure}[!h]
+\centering
+\includegraphics[width=0.49\textwidth]{\lang/gpio_complete_02.JPG}
+\includegraphics[width=0.49\textwidth]{\lang/gpio_complete_03.JPG}
+\caption{GPIO-Aufbau mit Lochrasterplatine}
+\label{fig:gpio_complete}
+\end{figure}
+
+
+\subsection{Lochrasterplatine}
+Vor dem Aufbau der Lochrasterplatine wurde die Verwendung der GPIO-Pins
+überprüft und unter Berücksichtigung von Abbildung \ref{fig:gpio_rpi}
+für {\autor}s {\Bezeichnung} gemäß Tabelle \ref{tab:gpio_rpi}
+festgelegt.
+
+\begin{figure}[!h]
+\centering
+\includegraphics[width=0.9\textwidth]{GPIO/GPIO-Pinout-Diagram-2.png}
+\caption{GPIO-Belegung -- { \copyright{ }\foundation}
+(CC BY-SA 4.0)}
+\label{fig:gpio_rpi}
+\end{figure}
+
+\begin{table}[!h]
+\centering
+\renewcommand{\arraystretch}{1.25}
+\begin{tabular}{|p{0.28\textwidth}|p{0.15\textwidth}|p{0.05\textwidth}|p{0.001\textwidth}|p{0.05\textwidth}|p{0.12\textwidth}|p{0.28\textwidth}|}
+\hline
+\textbf{Verwendung}					&	\textbf{Funktion}		&	\textbf{Pin}	&	&	\textbf{Pin}	&	\textbf{Funktion}		&	\textbf{Verwendung}\\
+\hline
+									&	\texttt{\Pthree}		&	1				&	&	2				&	\texttt{\Pfive}			&	\\
+\hline
+\textbf{OLED-Display: }SDA			&	\texttt{\GPIO{2} (SDA)}	&	3				&	&	4				&	\texttt{\Pfive}			&	\\
+\hline
+\textbf{OLED-Display: }SCL			&	\texttt{\GPIO{3} (SCL)}	&	5				&	&	6				&	\texttt{\GND}			&	\\
+\hline
+\textbf{\onoffshim:}\newline
+W 0=ausschalten						&	\texttt{\GPIO{4}}		&	7				&	&	8				&	\texttt{\GPIO{14}}		&	--\\
+\hline
+									&	\texttt{\GND}			&	9				&	&	10				&	\texttt{\GPIO{15}}		&	--\\
+\hline
+\textbf{\onoffshim:}\newline
+R Status Ein-/Aus-Taster\newline
+W Anzeige Power-LED					&	\texttt{\GPIO{17}}		&	11				&	&	12				&	\texttt{\GPIO{18}}		&	\textbf{\miniamp: }PCM CLK\newline
+																																			I2S BCLK (bit clock)\\
+\hline
+\textbf{\onoffshim:}\newline
+W 1=Relais ansteuern				&	\texttt{\GPIO{27}}		&	13				&	&	14				&	\texttt{\GND}			&	\\
+\hline
+--									&	\texttt{\GPIO{22}}		&	15				&	&	16				&	\texttt{\GPIO{23}}		&	--\\
+\hline
+									&	\texttt{\Pthree}		&	17				&	&	18				&	\texttt{\GPIO{24}}		&	LED \textit{vol. down}\\
+\hline
+LED \textit{prev}					&	\texttt{\GPIO{10}}		&	19				&	&	20				&	\texttt{\GND}			&	\\
+\hline
+LED \textit{next}					&	\texttt{\GPIO{9}}		&	21				&	&	22				&	\texttt{\GPIO{25}}		&	LED \textit{vol. up}\\
+\hline
+LED \textit{play/pause}				&	\texttt{\GPIO{11}}		&	23				&	&	24				&	\texttt{\GPIO{8}}		&	Taster \textit{prev}\\
+\hline
+									&	\texttt{\GND}			&	25				&	&	26				&	\texttt{\GPIO{7}}		&	Taster \textit{next}\\
+\hline
+--									&	\texttt{ID SD}			&	27				&	&	28				&	\texttt{ID SC}			&	--\\
+\hline
+Taster \textit{play/pause}			&	\texttt{\GPIO{5}}		&	29				&	&	30				&	\texttt{\GND}			&	\\
+\hline
+Taster \textit{vol. down}			&	\texttt{\GPIO{6}}		&	31				&	&	32				&	\texttt{\GPIO{12}}		&	Taster \textit{vol. up}\\
+\hline
+Taster \textit{vol. mute}			&	\texttt{\GPIO{13}}		&	33				&	&	34				&	\texttt{\GND}			&	\\
+\hline
+\textbf{\miniamp: }PCM FS\newline
+I2S SYNC (left/right clk)			&	\texttt{\GPIO{19}}		&	35				&	&	36				&	\texttt{\GPIO{16}}		&	\textbf{\miniamp: }PAM8403\newline
+																																			W 0=MUTE\\
+\hline
+\textbf{\miniamp: }PAM8403\newline
+W 0=SHDN (shutdown)					&	\texttt{\GPIO{26}}		&	37				&	&	38				&	\texttt{\GPIO{20}}		&	\textbf{\miniamp: }PCM DIN\newline
+																																			I2S data in \textit{(not used)}\\
+\hline
+									&	\texttt{\GND}			&	39				&	&	40				&	\texttt{\GPIO{21}}		&	\textbf{\miniamp: }PCM DOUT\newline
+																																			I2S data out\\
+\hline
+\end{tabular}
+\vspace{0.5cm}
+\caption{Belegung der GPIO-Leiste bei {\autor}s \Bezeichnung}
+\label{tab:gpio_rpi}
+\end{table}
+
+\newpage
+Auf der Lochrasterplatine befinden sich folgende Komponenten:
+\begin{compactitem}
+\item{GPIO-Pins als Eingänge für die Taster mit PullUp-Widerständen}
+\item{GPIO-Pins als Ausgänge zur direkten Ansteuerung von LowCurrent-LEDs $\leq$ 3mA}
+\item{I2C-Bus für die Ansteuerung des OLED-Displays}
+\item{Relaiserweiterung für den \onoffshim}
+\end{compactitem}
+
+\begin{figure}[!h]
+\centering
+\includegraphics[width=1.41\textwidth, angle=90]{proto/phoniebox.pdf}
+%\includepdf[pages=-, scale=0.8, angle=90]{proto/phoniebox.pdf}
+\caption{Schaltung auf der Lochrasterplatine}
+\label{fig:proto_schematics}
+\end{figure}
+
+Um die Bedientaster zuverlässig einzulesen, empfehle ich die Verwendung
+von \textbf{externen} PullUp-Widerständen mit 10k\textOmega. Es ist zwar
+möglich, die internen PullUp-Widerstände des SoC BCM2837 zu aktivieren,
+doch bei so mancher {\Bezeichnung} war dies dann letztlich der Grund,
+dass die Taster nicht wie erwartet funktioniert hatten.\\
+Um den Pegel bei gedrücktem Taster auf \textit{low} zu ziehen, aber den
+Stromfluss zu begrenzen, werden mit GND verbundene 
+1,2k\textOmega-Wi\-der\-stän\-de zugeschaltet.
+\todo{softwareseitige Festlegung der GPIOs}
+
+Einfacher ist die Ausführung der GPIO-Pins, an denen die LEDs der Taster
+ansgeschlossen werden. Da in den verwendeten Tastern LowCurrent-LEDs
+eingebaut sind, die bereits unter 3mA Stromfluss ausreichend hell
+leuchten, sind keine Transistortreiberschaltungen notwendig. Der bei
+LEDs obligatorische Vorwiderstand wurde für einen 3,3V-Betrieb
+ausgerechnet und direkt an die LEDs angelötet. Eine visuelle Kontrolle
+zeigte, dass für die gleiche Helligkeit bei den verschiedenen Farben
+unterschiedliche Widerstandswerte erforderlich sind:
+
+\begin{tabular}{ll}
+\textbf{LED-Farbe}	&	\textbf{Vorwiderstand}\\
+rot					&	1,2k\textOmega\\
+gelb				&	1,2k\textOmega\\
+grün				&	4,7k\textOmega\\
+blau				&	1,5k\textOmega\\
+weiß				&	1,5k\textOmega\\
+\end{tabular}
+
+Auf der Lochrasterplatine befinden sich daher nur die Steckverbinder
+für den Anschluss der Tas\-ter-LEDs.
+\todo{softwareseitige Festlegung der GPIOs}
+
+Das OLED-Display wird über den I2C-Bus des {\RPi} angesteuert, der an
+den GPIO-Pins 3 und 5 der Stiftleiste aufgelegt ist. Da dieses Modul
+bereits 10k\textOmega-Pull\-Up-Wi\-der\-stän\-de enthält, wurden auf der
+Lochrasterplatine keine zusätzlichen PullUps verbaut.
+
+\begin{figure}[h]
+\centering
+\includegraphics[width=0.49\textwidth]{proto/proto_bot.JPG}
+\includegraphics[width=0.49\textwidth]{proto/proto_top.JPG}
+\caption{Ansichten der Lochrasterplatine}
+\label{fig:proto_board}
+\end{figure}
+
+
+\subsection{Relais für \onoffshim}
+\label{sect:onoffshim_relay}
+Zum Ein- und Ausschalten der {\Bezeichnung} wird der {\onoffshim} von
+Pimoroni verwendet. Beim Testen stellte sich heraus, dass, wenn der
+Ein-/Aus-Taster des {\onoffshim}s (oder ein dazu parallel
+angeschlossener Taster) bis über den Abschaltzeitpunkt hinaus gedrückt
+gehalten wird, der {\RPi} zwar heruntergefahren, aber die
+Versorgungsspannung nicht getrennt wird! Die rote Power-LED des {\RPi}
+leuchtet weiter und es fließt ein deutlicher Strom von ca. 80-90mA,
+der die Powerbank \textit{leersäuft}.\\
+Ich weiß nicht, ob es sich hierbei um ein generelles Problem beim
+{\onoffshim} handelt, oder ob das bloß wieder eine Macke meines
+Exemplars ist. Aber da gerade Kinder kein Gefühl dafür haben, wie lange
+sie die Taste drücken dürfen/sollen, musste eine vernünftige Lösung
+her!
+
+Letztlich konnte dieses Problem wie in Abbildung
+\ref{fig:onoffshim_relay} durch den Einbau eines als Öffner geschalteten
+Relaiskontaktes in Reihe zum Ein-/Aus-Taster des {\onoffshim} gelöst
+werden. Beim Herunterfahren wird dabei über ein Softwareskript das
+Relais angesteuert, so dass ein evtl. immer noch geschlossener Taster
+vom {\onoffshim} getrennt wird. Weil \textit{nach} dem Abschalten auch
+das Relais wieder abfällt, führt betätigter Taster somit zu einem
+erneuten Hochfahren der \Bezeichnung.
+Der Ein-/Aus-Taster hat jetzt drei Funktionalitäten:
+\begin{compactitem}
+\item{im ausgeschalteten Zustand kurz betätigen: {\Bezeichnung} fährt hoch}
+\item{etwas länger betätigen zum Herunterfahren der \Bezeichnung}
+\item{richtig lange betätigen für einen Reboot (Neustart) der \Bezeichnung}
+\end{compactitem}
+
+\begin{figure}[h]
+\centering
+\includegraphics[width=0.9\textwidth]{proto/concept_onoffshim_relay.JPG}
+\caption{Konzept zur gesteuerten Trennung des Tasters vom \onoffshim}
+\label{fig:onoffshim_relay}
+\end{figure}
+
+Dieser Schaltungsteil wurde nachträglich auf der Lochrasterplatine
+ergänzt. \todo{Software dafür in Kapitel 3 beschreiben}
+
+
+\newpage
+\subsection{Beschreibung des "`Turms"'}
+Das Erweiterungskonzept beim {\RPi} besteht darin, eine zusätzliche
+Platine \textit{huckepack} als sogenannte piggyback-Platine oder im
+Slang der {\foundation} als Pi-HAT ("`\textbf{h}ardware
+\textbf{a}ttached on \textbf{t}op"') auf die 40-polige GPIO-Leiste
+aufzustecken. Bei mehreren Erweiterungsplatinen entsteht so schnell ein
+ganzer Turm von Zusatzplatinen \smiley{smile}\\
+Auch bei der {\Bezeichnung} sind mehrere Aufsatzplatinen im Einsatz, wie
+in Abbildung \ref{fig:piggyback_tower} zu bewundern ist.
+\begin{figure}[h]
+\centering
+\includegraphics[width=0.49\textwidth, angle=0]{GPIO/piggyback1050594.JPG}
+\includegraphics[width=0.49\textwidth, angle=0]{GPIO/piggyback1050597.JPG}
+\includegraphics[width=0.49\textwidth, angle=0]{GPIO/piggyback1050605.JPG}
+\includegraphics[width=0.49\textwidth, angle=0]{GPIO/piggyback1050624.JPG}
+\caption{Der \RPi-Turm der {\Bezeichnung} in seiner vollen Pracht}
+\label{fig:piggyback_tower}
+\end{figure}
+
+Ganz unten in der Box befindet sich alleine schon aus Gründen der
+Schwerpunktverlagerung die Powerbank, die über ein Holzgestell fixiert
+wird. Darüber ist auf einer dünnen Sperrholzplatte der {\RPi} montiert,
+auf den der Hifiberry {\miniamp} aufgesteckt wurde. Auf den {\miniamp}
+wurde eine 40-polige Stiftleiste aufgelötet, auf der auch der
+{\onoffshim} verlötet wurde. Um die Verkabelung beim Zusammenbau etwas
+leichter durchführen zu können, wurde die selbstgebaute
+Lochrasterplatine ganz bewusst oben aufgesetzt. Der Drahtverhau im
+Inneren der Box vom Turm zu den Tastern, zum OLED-Dis\-play und zu den
+Lautsprechern ist immer noch groß genug!\\
+Schematisch ist es nochmals etwas übersichtlicher in Abbildung
+\ref{fig:piggyback_scheme} dargestellt.
+
+\begin{figure}[h]
+\centering
+\includegraphics[width=1.0\textwidth, angle=0]{GPIO/piggyback_bw.pdf}
+\caption{Der \RPi-Turm schematisch dargestellt}
+\label{fig:piggyback_scheme}
+\end{figure}
+
+
+\subsection{Verwendete Anschlussbuchsen}
+Bei der Stromversorgung wurde darauf geachtet, die auftretenden
+Stromstärken verlustfrei zu übertragen. So wurden nur Kupferlitzen mit
+einem Querschnitt $\geq$ 0,25mm$^2$ verwendet, um den Spannungsabfall 
+niedrig genug zu halten. Dieser Querschnitt ist bei mehradrigen
+Leitungen laut
+\url{https://www.lappkabel.de/fileadmin/catalog/2010_de_pdf/T12_Belastbarkeit_Grundtabelle_Reduktionstabellen.pdf}
+für bis zu 4A ausgelegt.
+
+Neben ausreichend dicken Kabelquerschnitten müssen auch die verwendeten
+Steckverbinder dafür ausgelegt werden. In die Gehäuserückwand der
+{\Bezeichnung} wurde als Ladebuchse für die Powerbank das Produkt NEB-1
+(lumberg) eingebaut. Diese Buchse ist für Stromstärken bis 3A ausgelegt.
+Da die Powerbank bei Anschluss an eine Micro-USB-Ladebuchse bis zu 2A
+zieht und bei Anschluss an beiden USB-Buchsen bis zu 4A, darf hier nur
+eine USB-Buchse verwendet werden!\\
+Das Gegenstück, der Hohlstecker NES-1 GR (lumberg) wurde an einem
+5V-Stecker\-netz\-teil verbaut.
+
+Für die USB-Anschlüsse wurden die lötbaren USB-Stecker BKL-10120098
+(USB-A) und BKL-10120262 (micro USB-B) verwendet. Siehe Tabelle
+\ref{tab:powerconn}.
+
+\begin{table}[h]
+\centering
+\renewcommand{\arraystretch}{1.25}
+\begin{tabular}{|p{0.05\textwidth}|p{0.08\textwidth}|p{0.25\textwidth}|p{0.25\textwidth}|p{0.10\textwidth}|p{0.10\textwidth}|}
+\hline
+\textbf{Anz.}	&	\textbf{Abb.}											&	\textbf{Artikel}	&	\textbf{Bestellnummer}	&	\textbf{Lieferant}	&	\textbf{Einzel-\newline preis}\\
+\hline
+		1x		&	\includegraphics[height=30px]{power/lumberg_NES-1.jpg}	&	Hohlstecker			&	LUM NES1 GR				&	reichelt			&	0,83\\
+\hline
+		1x		&	\includegraphics[height=30px]{power/lumberg_NEB-1.jpg}	&	Einbaukupplung		&	LUM NEB 1				&	reichelt			&	1,20\\
+\hline
+		2x		&	\includegraphics[height=30px]{power/BKL-10120262.jpg}	&	BKL 10120262		&	USB MICRO ST			&	reichelt			&	0,85\\
+\hline
+		1x		&	\includegraphics[height=30px]{power/BKL-10120100.jpg}	&	BKL 10120100		&	BKL 10120100			&	reichelt			&	0,79\\
+\hline
+		1x		&	\includegraphics[height=30px]{power/BKL-10120098.jpg}	&	BKL 10120098		&	BKL 10120098			&	reichelt			&	1,40\\
+\hline
+\end{tabular}
+\vspace{0.5cm}
+\caption{Verwendete Anschlussbuchsen bei {\autor}s \Bezeichnung}
+\label{tab:powerconn}
+\end{table}
+
+\newpage
+\begin{bclogo}[logo = \bclampe, noborder = true]{Hinweis}
+Der Einbau der Lumberg-Buchse NEB-1 war in der 8mm starken Rückwand des
+verwendeten Holzgehäuses etwas diffizil: Um die Buchse mit ihrer
+seitlich angebrachten Kontaktfeder überhaupt durch die Holzplatte zu
+bringen, ohne das Loch so groß zu bohren, dass es durch den
+Befestigungsflansch nicht mehr überdeckt wurde, musste am Loch in der
+Gehäuseinnenseite mehrmals vorsichtig \textit{herumgeknabbert} werden!
+Diese Buchse ist wohl eher nur für dünne Metallwände ($\leq$2mm?)
+geeignet.
+\end{bclogo}
+
+
+\section{Holzarbeiten}
+Zu den Holzarbeiten möchte ich mich als Laie auf diesem Gebiet gar nicht
+zu weit aus dem Fenster lehnen. Das können andere besser, siehe hier:\\
+\begin{smaller}
+\url{https://github.com/MiczFlor/RPi-Jukebox-RFID/blob/develop/docs/2020-Phoniebox-Calendar.jpg}
+\end{smaller}
+\\Aber auf einige Punkte möchte ich dennoch hinweisen:
+
+\subsection{Wahl des Gehäuses}
+Ich habe ein Gehäuse verwendet, das sich durch schräg verbaute Wände
+und dadurch wenige rechte Winkel auszeichnet. Für echte Holzwürmer kein
+Problem, aber mir machte es den Einbau nicht leichter. Nächstes Mal
+werde ich die typischen Baumarkt-Kolzkisten verwenden. Da sind die
+Außenwände dicker und der Einbau ist entsprechend einfacher
+\smiley{wink}\\
+Umso mehr freut es mich, dass ich das Gehäuse nicht verpfuscht habe
+(yeah!)
+
+\subsection{Einbau des RFID-Readers}
+In meiner Faulheit beschloss ich zunächst, den RFID-Reader mit einem
+doppelseitigen Klebeband (eigentlich ein gutes 3M-Band, aber
+mittlerweile auch ca. 10 Jahre alt) innen an der Oberseite der Box
+festzukleben. Eines Tages reagierte die Box nicht mehr auf aufgelegte
+RFID-Karten und nicht einmal das Piepgeräusch des Readers ertönte mehr.
+Frontplatte runter und was sah ich? Der Reader lag mitten in der
+Box\dots\\
+Auch zusätzliche Unterstützung durch sogenanntes \textit{Panzertape}
+half nichts, so dass ich den Reader letztlich mit vier Holzschrauben
+vernünftig montierte: Dazu wurden die kleinen Gehäuseschrauben unter den
+Gummifüßen entfernt, die Schraublöcher im Gehäuse durchgebohrt und
+vergrößert und der Reader mit vier Holzschrauben innen stabil an der
+Oberseite der {\Bezeichnung} verschraubt.
+\begin{figure}[h]
+\centering
+\includegraphics[width=0.49\textwidth, angle=0]{case/RFIDreader_screws.jpg}
+\includegraphics[width=0.49\textwidth, angle=0]{case/RFIDreader_mounted.jpg}
+\caption{RFID-Reader vernünftig montiert}
+\end{figure}
+
+\subsection{Sichtöffnung für Ladeanzeige der Powerbank}
+\begin{figure}[h]
+\centering
+\includegraphics[width=0.80\textwidth, angle=0]{case/battery_indicator.jpg}
+\caption{Ladeanzeige der Powerbank an der Unterseite der \Bezeichnung}
+\label{fig:battery_indicator}
+\end{figure}
+Die EasyAcc-Powerbank ist mit vier kleinen LEDs ausgestattet, die über
+die Anzahl der leuchtenden LEDs den prozentualen Ladezustand der
+Powerbank anzeigen. Wenn das Netzteil angesteckt ist und die Powerbank
+geladen wird, blinkt die höchstwertige LED.\\
+Der Einfachheit halber habe ich die Powerbank im Gehäuse mit der
+Ladeanzeige nach unten montiert und im Gehäuse an der entsprechenden
+Stelle ein kleines Sichtfenster herausgesägt, siehe Abbildung
+\ref{fig:battery_indicator}.
+
+\subsection{Sichtscheibe für OLED-Display}
+Auch in {\autor}s {\Bezeichnung} wurde ein kleines 1,3-Zoll OLED-Display
+eingebaut. Dies ist gerade zu Beginn \ua für eine schnelle
+Fehlerdiagnose äußerst sinnvoll. Allerdings sollte man vor das Display
+eine kleine Plexiglasscheibe oder Ähnliches einsetzen, um das Display
+vor groben Kinderfingern zu schützen.
+\begin{figure}[h]
+\centering
+\includegraphics[width=0.75\textwidth, angle=0]{case/OLEDdisplay.jpg}
+\caption{OLED-Display für Statusanzeige in der Frontplatte der \Bezeichnung}
+\label{fig:OLEDdisplay}
+\end{figure}
+
+\subsection{Halterung für die Powerbank}
+Die Powerbank wird über verleimte Holzhalterungen im Gehäuse fixiert. Da
+die \textit{vorhandene} Holzplatte für die Halterungen etwas dünner war
+als die Powerbank selbst, wurde die Breite mit zwei Sperrholzstreifen
+"`aufgedoppelt"'. Damit die Powerbank fest eingepresst wird, wurde ein
+ESD-Schaumstoff dazwischen gelegt. Mit einer Sperrholzplatte wird die
+Powerbank gehalten. Später wird darauf der {\RPi} montiert.
+\begin{figure}[h]
+\centering
+\includegraphics[width=0.49\textwidth, angle=0]{case/powerbank1.jpg}
+\includegraphics[width=0.49\textwidth, angle=0]{case/powerbank2.jpg}
+\includegraphics[width=0.49\textwidth, angle=0]{case/powerbank3.jpg}
+\includegraphics[width=0.49\textwidth, angle=0]{case/powerbank4.jpg}
+\includegraphics[width=0.49\textwidth, angle=0]{case/powerbank5.jpg}
+\includegraphics[width=0.49\textwidth, angle=0]{case/powerbank6.jpg}
+\caption{Montage der Powerbank}
+\end{figure}
+
+%\subsection{Frontplatte}
+%Lautsprecher\\
+%Taster\\
+%OLED-Display

@@ -1,0 +1,156 @@
+% chapter1.tex -- de (German)
+\chapter{Einleitung}
+
+Vielen Dank für Ihr Interesse an {\autor}s {\Bezeichnung}.\\
+Hierbei handelt es sich um ein kindgerechtes Abspielgerät auf Basis des
+Raspberry Pi für Audiodateien aller Art, insbesondere für
+Kinderhörspiele. Die Bedienung wurde bewusst einfach und für Kinder
+verständlich gehalten. Sie erfolgt über Taster für Ein/Aus, Play/Pause,
+vor/zurück und zur Lautstärkeregelung. Die Auswahl des gewünschten
+Hörspiels erfolgt über entsprechend beschriftete \bzw bebilderte
+{\Karte}n.
+
+Die Software der {\Bezeichnung} basiert auf dem MIT-lizensierten Werk
+\textbf{RPi-Jukebox-RFID} von \textbf{MiczFlor}, die auf \textit{github}
+unter folgender URL bereitgestellt wird:\\ % is hosted at \url{...}
+\url{https://github.com/MiczFlor/RPi-Jukebox-RFID} 
+
+{\autor}, der Autor dieser Dokumentation ist \textbf{nicht} der geistige
+Urheber der {\Bezeichnung}! Er hat lediglich ein Exemplar für sich
+gebaut und gibt mit diesem Dokument seine dabei gemachten Erfahrungen 
+und die aufgetretenen Probleme weiter.
+
+
+\section{Rechtliche Hinweise}
+Diese Dokumentation wurde von {\autor} unter der \textit{GNU Free
+Documentation License v1.3} veröffentlicht. Sie enthält keine
+unveränderlichen Abschnitte.
+
+\subsection*{Marken}
+Einige Bezeichnungen in dieser Schrift können Marken sein, deren
+Benutzung durch Dritte für deren Zwecke die Rechte der Inhaber verletzen
+können.
+
+Das in dieser Dokumentation verwendete {\RPi}-Logo ist ein registriertes
+Warenzeichen der {\foundation} und darf nur zusammen mit der
+Kennzeichnung {\circledR} verwendet werden. Details finden sich im
+Internetauftritt der {\foundation} unter\\
+\url{https://www.raspberrypi.org/trademark-rules/}
+
+\includegraphics[height=70px]{RPi-Logo-Reg-SCREEN.png}
+
+\subsection*{Links}
+In dieser Dokumentation sind Links zu externen Seiten im Internet 
+enthalten. Diese Inhalte macht sich der Verfasser {\autor} trotz
+Verlinkung nicht zu eigen, da sie nicht in seinem Einflussbereich
+stehen! Zum Zeitpunkt der Verlinkung waren keine rechtswidrigen Inhalte
+erkennbar. Eine ständige Überprüfung auf etwaige rechtsverstoßende
+Änderungen ist dem Verfasser nach geltendem Recht nicht zuzumuten.\\
+Sollten aktuelle oder künftige Inhalte jedoch rechtswidrig sein, so kann
+der Autor darüber per e-mail an \url{mailto:himself@schlizbaeda.de}
+informiert werden. Es werden dann entsprechende Maßnahmen zur
+Beseitigung des/der betroffenen Links ergriffen.
+
+\subsection*{Bildrechte}
+Alle inhaltlich relevanten Fotos und technischen Abbildungen in diesem
+Dokument stammen vom Verfasser {\autor} selbst und werden hiermit von
+ihm unter der \textit{Creative-Commons}-Li\-zenz \textbf{CC BY-SA 3.0}
+veröffentlicht. Sie dürfen daher von jedem bei Namensnennung des 
+Urhebers in unveränderter oder auch in veränderter Form unter den 
+gleichen Bedingungen weitergegeben werden:\\
+\includegraphics[height=35px]{CC-BY-SA.png}
+
+Nicht vom Autor stammende Bilder sind mit einem entsprechenden
+Copy\-right-Ver\-merk versehen.\\
+Die von der {\foundation} stammende Dokumentation samt Bildern ist in
+der Regel gemäß \textbf{CC BY-SA 4.0} lizensiert:
+\url{https://www.raspberrypi.org/documentation/}
+
+
+\section{Hinweis zur neumodernen "`Genderei"' landauf, landab}
+Der Autor {\autor} kann gar nicht oft genug betonen, dass ihm eine
+Gleichbehandlung \textbf{aller} Geschlechter (mittlerweile mehr als 
+zwei) äußerst wichtig ist. Er verurteilt eine Diskriminierung von
+Menschen nur aufgrund ihres Geschlechtes oder anderer
+Nebensächlichkeiten wie ihrer Herkunft etc. aufs Schärfste!
+
+Dennoch -- oder gerade deswegen -- lehnt er die derzeit grassierende
+Unart des sogenannten "`Genderns"' mit sprachlichen Auswüchsen wie 
+"`AnwenderInnen"' oder gar "`Benutzer*innen"' (jetzt neu mit Stern!)
+zugunsten  einer klaren und verständlichen Ausdrucksweise ab. In diesem
+Trend sind selbst Wörter wie "`Abiturienten"' verpönt: Soll man hier
+wirklich gender-gerecht "`Abitu\-rierende"' schreiben? \smiley{wink}
+
+
+\section{Danksagung}
+{\autor} möchte folgenden Personen und Einrichtungen danken:
+
+\textbf{MiczFlor}, dem Schöpfer der {\Bezeichnung}:\\
+Homepage: \url{http://phoniebox.de/}, Soft\-ware\-down\-load:
+\url{https://github.com/MiczFlor}
+
+dem \textbf{deutschen \forum} (\url{https://forum-raspberrypi.de})
+für die unzähligen Beiträge zum Thema {\Bezeichnung}
+
+sowie folgenden Mitgliedern des deutschen {\forum}s:\\
+\textbf{@splitti79} (\url{https://forum-raspberrypi.de/user/54710-splitti79/}),\\
+der auch einen eigenen Internetblog zum Thema betreibt:\\
+\url{https://splittscheid.de/selfmade-phoniebox/}\\
+\url{https://splittscheid.de/phoniebox-2/}
+
+\textbf{@hailogugo} (\url{https://forum-raspberrypi.de/user/51824-hailogugo/})
+
+
+\section{Kurzbeschreibung}
+Die {\Bezeichnung} ist ein intuitiv über {\Karte}n zu bedienender
+Audioplayer für Kinder. Als kommerzielle Pendants existieren die
+Toniebox (\url{https://tonies.de/}) oder der vom Konzept her bezüglich
+der Software freier konzipierte Hörbert
+(\url{https://www.hoerbert.com/}).
+
+Von der {\Bezeichnung} existieren zwei Softwarevarianten: Die
+"`einfache"' Variante, die nur auf Audiodateien lokal auf dem {\RPi}
+oder im freigegebenen Heimnetzwerk zugreifen kann. Sie verwendet den
+\textit{Music Player Daemon (MPD)} von Linux:\\
+\url{https://www.musicpd.org/}\\
+Die andere Variante ermöglicht zudem den Zugriff auf \textit{Spotify}.
+Sie basiert allerdings auf \textit{Mopidy} anstelle von MPD. In dieser
+Dokumentation wird jedoch nicht auf die Spotify-Variante eingegangen.
+
+Die Hardware einer {\Bezeichnung} besteht mindestens aus folgenden
+Komponenten:
+\begin{compactitem}
+\item{\RPi}
+\item{Audioverstärker und Lautsprecher}
+\item{{\reader} und einem Satz passender {\Karte}n}
+\item{\textit{optional:} Taster für grundlegende Bedienung}
+\item{\textit{optional:} USB-Powerbank als Stromversorgung}
+\item{\textit{optional:} Ein-/Ausschalter}
+\item{\textit{optional:} LAN- oder WLAN-Modul, falls nicht Bestandteil
+      des verwendeten \RPi}
+\item{\textit{optional:} Statusdisplay}
+\end{compactitem}
+Für eine minimalistische aber funktionale {\Bezeichnung} sind nur der
+{\RPi} als zentrale Einheit, der {\reader} für die Umsetzung des
+Bedienkonzeptes und ein kleiner Audioverstärker erforderlich. Da die
+Bedienung aller Playerfunktionen (play, pause, prev, next, volume) auch
+über speziell konfigurierte {\Karte}n erfolgen kann, sind zusätzliche
+Bedientaster nicht zwingend notwendig.\\
+Ebenso muss die Box nicht unbedingt batteriebetrieben sein, so dass ein
+passendes Netzteil zur Spannungsversorgung des RPi ausreicht. Dann
+können auch die Powerbank und der Ein-/Ausschalter weggelassen
+werden.\\
+Wenn die {\Bezeichnung} nur Audiodateien von der lokalen SD-Karte oder
+von einem USB-Speicherstick abspielen soll, kann auf ein LAN- oder
+WLAN-Mo\-dul verzichtet werden. Die {\RPi}s der Bauform B haben ohnehin
+eine Ethernetbuchse und ab dem {\RPi} 3B ist ein WLAN-Modul verbaut.\\
+Grundsätzlich optional ist ein Statusdisplay. Es erleichtert aber die
+Erkennung des Betriebszustandes enorm.
+
+Im deutschen {\forum} gibt es einige Themen zur {\Bezeichnung}, die
+dort ursprünglich als \textit{jukebox4kids} oder auch als 
+\textit{RPi-Jukebox-RFID} bezeichnet wird. Der Begriff
+\textit{\Bezeichnung} wurde erst später geprägt.\\
+\begin{scriptsize}\url{https://forum-raspberrypi.de/forum/board/152-musikboxen-webradios-musikplayer/}\end{scriptsize} -- \Bezeichnung-Unterforum\\
+\begin{scriptsize}\url{https://forum-raspberrypi.de/forum/thread/13144-projekt-jukebox4kids-jukebox-fuer-kinder/}\end{scriptsize} -- Monsterthread!\\
+\begin{scriptsize}\url{https://forum-raspberrypi.de/forum/thread/45571-splittis-phoniebox-1-0-aka-ghostbox-aka-die-drei-kids-box/}\end{scriptsize}

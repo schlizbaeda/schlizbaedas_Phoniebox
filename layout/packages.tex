@@ -1,0 +1,181 @@
+% Adjustment of page layout ----------------------------------------------------
+%   see style.tex
+% ------------------------------------------------------------------------------
+\usepackage[
+    automark, % Kapitelangaben in Kopfzeile automatisch erstellen
+    headsepline, % Trennlinie unter Kopfzeile
+    ilines % Trennlinie linksbündig ausrichten
+]{scrpage2}
+
+% Umlauts ----------------------------------------------------------------------
+%   Set CodePage:
+%   Use special characters like German umlauts (äüöß)  directly in the LaTeX
+%   source. Enables correct hyphenation rules for words containing umlauts.
+% ------------------------------------------------------------------------------
+\usepackage[latin1]{inputenc}
+%\usepackage[utf8]{inputenc}
+\usepackage[T1]{fontenc}
+\usepackage{textcomp} % Euro char, Copyright etc.
+
+% font -------------------------------------------------------------------------
+\usepackage{lmodern} % better fonts
+\usepackage{relsize} % Set relative font size
+
+% Graphics and Pictures --------------------------------------------------------
+% Enable including of JPG files
+\usepackage[dvips,final]{graphicx}
+% relative graphics path
+\graphicspath{{pics/}}
+
+% Commands from AMSTeX for mathematical symbols as \boldsymbol \mathbb ---------
+\usepackage{amsmath,amsfonts}
+
+% Index output with \printindex ------------------------------------------------
+\usepackage{makeidx}
+
+% Easy definition of line spacing, page margins etc. ---------------------------
+\usepackage{setspace}
+\usepackage{geometry}
+
+% ------------------------------------------------------------------------------
+% --- index of abbreviations ---------------------------------------------------
+% ------------------------------------------------------------------------------
+% Create symbol directories easily. Based on MakeIndex:
+%  makeindex.exe %Name%.nlo -s nomencl.is -o %Name%.nls
+% creates the directory. This command can be used e.g. in TeXnicCenter
+% as a postprocessor, so that it needn't to be used manually all the time.
+% The definitions are moved into the file "Glossar.tex".
+% ------------------------------------------------------------------------------
+\usepackage[intoc]{nomencl}
+\let\abbrev\nomenclature
+\renewcommand{\nomname}{Abkürzungsverzeichnis}
+\setlength{\nomlabelwidth}{.25\hsize}
+\renewcommand{\nomlabel}[1]{#1 \dotfill}
+\setlength{\nomitemsep}{-\parsep}
+
+\usepackage{acronym}
+
+
+% Text flow around images ------------------------------------------------------
+\usepackage{floatflt}
+
+% ------------------------------------------------------------------------------
+% --- Listings to include source code ------------------------------------------
+% ------------------------------------------------------------------------------
+\usepackage{listings}
+\usepackage[table]{xcolor} 
+% colours for syntax colouring / alternatively: {RGB}{0-255,0-255.0-255}
+%%%%\definecolor{hellgelb}{rgb}{1,1,0.9}			     
+\definecolor{colKeys}{rgb}{0,0,1}
+\definecolor{colIdentifier}{rgb}{0,0,0}
+\definecolor{colComments}{rgb}{0,0.5,0.1} 
+\definecolor{colString}{rgb}{1,0,0}
+\lstset{
+    float=hbp,
+    basicstyle=\ttfamily\color{black}\small\smaller, % the size of the fonts that are used for the code 
+    identifierstyle=\color{colIdentifier},
+    keywordstyle=\color{colKeys},
+    stringstyle=\color{colString},
+    commentstyle=\color{colComments},
+    columns=flexible,
+    tabsize=3,
+    %frame=single,                     % add frame arround the code
+    extendedchars=true,
+    showspaces=false,
+    showstringspaces=false,
+    numbers=left,                      % where to put the line numbers
+    numberstyle=\tiny,                 % fontsize for line
+    stepnumber= 1,                     % stepnumber between line-numbers
+    breaklines=true,                   % sets automatic line breaking
+    captionpos=b,                      % sets caption position to bottom
+    backgroundcolor=\color{hellgelb},
+    breakautoindent=true,
+    }
+
+% URL handling -----------------------------------------------------------------
+\usepackage{url}
+
+% important for correct citation -----------------------------------------------
+\usepackage[numbers]{natbib}  % [square] to [numbers]
+
+% ------------------------------------------------------------------------------
+% --- PDF options --------------------------------------------------------------
+% ------------------------------------------------------------------------------
+\definecolor{darkblue}{rgb}{0,0,0.5} % colour of PDF links
+\usepackage[
+    bookmarks,
+    bookmarksopen=true,
+    colorlinks=true,
+% colour definition of PDF links
+    linkcolor=darkblue,% simple internal links
+    anchorcolor=black, % anchor text
+    citecolor=blue,    % links to bibliography
+    filecolor=magenta, % links to open local files
+    menucolor=red,     % Acrobat menu items
+    urlcolor=cyan, 
+% colour definitions for printing (all in black)
+    %linkcolor=black,  % simple internal links
+    %anchorcolor=black,% anchor text
+    %citecolor=black,  % links to bibliography
+    %filecolor=black,  % links to open local files
+    %menucolor=black,  % Acrobat menu items
+    %urlcolor=black, 
+    backref,
+    % for correct creation of bookmarks:
+    plainpages=false,
+    pdfpagelabels,
+    hypertexnames=false,
+    linktocpage % link to page numbers insteag of text
+]{hyperref}
+% Commands that output umlauts lead to errors when they are passed as options to hyperref
+\hypersetup{
+    pdftitle={\titel \untertitel},
+    pdfauthor={\autor},
+    pdfcreator={\autor},
+    pdfsubject={\titel \untertitel},
+    pdfkeywords={\titel \untertitel},
+}
+
+% for Greek letters like \textOmega
+\usepackage{textgreek}
+
+% Continuous Numbering of foot notes -------------------------------------------
+\usepackage{chngcntr}
+
+% for long tables --------------------------------------------------------------
+\usepackage{longtable}
+\usepackage{array}
+\usepackage{ragged2e}
+\usepackage{lscape}
+
+% column definitions at right margin with defined width ------------------------
+\newcolumntype{w}[1]{>{\raggedleft\hspace{0pt}}p{#1}}
+
+% Change format of lists -------------------------------------------------------
+\usepackage{paralist}
+
+% necessary for definition of own commands
+\usepackage{ifthen}
+
+% defines commands for \todo and \listoftodos etc.
+\usepackage{todonotes}
+
+% ensures that spaces behind parameterless macros are not interpreted as macro end characters
+\usepackage{xspace}
+
+% format of figure annotations (captions)
+\usepackage{caption}
+\captionsetup{labelfont=bf,textfont=it} % figure bold, text italic
+
+% including of message boxes
+\usepackage[tikz]{bclogo}
+
+% include underlining of text
+\usepackage{ulem}
+
+% format of tables
+\usepackage{booktabs}
+\renewcommand{\arraystretch}{1} % line spacing inside tables of 2
+
+% including PDF files
+\usepackage{pdfpages}
