@@ -1,0 +1,737 @@
+                                                                     11.01.2020
+Phoniebox Classic installieren
+==============================
+
+1. aktuelles Betriebssystem Raspbian BUSTER Lite vom 24.09.2019 installieren:
+-----------------------------------------------------------------------------
+Imagedatei flashen
+$ sudo apt update
+$ sudo apt upgrade
+$ sudo raspi-config # ssh einrichten, hostname: "phoniebox1"
+
+
+**** ab hier Vorgehen nach https://github.com/MiczFlor/RPi-Jukebox-RFID/wiki/INSTALL-stretch#installation-and-configuration-via-ssh--headless-installation
+
+
+2. WLAN einrichten (u.a. für SSH-Zugang)
+----------------------------------------
+$ sudo nano /boot/wpa-supplicant.conf
+country=DE
+ctrl_interface=DIR=/var/run/wpa_supplicant GROUP=netdev
+update_config=1
+
+network={
+  ssid="linksys"
+  psk="B457C35A"
+  key_mgmt=WPA-PSK
+}
+$ sudo systemctl restart dhcpcd
+Warning: The unit file, source configuration file or drop-ins of dhcpcd.service changed on disk. Run 'systemctl daemon-reload' to reload units.
+$ sudo systemctl daemon-reload
+$ sudo reboot # TODO: braucht's das?
+$ ip addr
+1: lo: <LOOPBACK,UP,LOWER_UP> mtu 65536 qdisc noqueue state UNKNOWN group default qlen 1000
+    link/loopback 00:00:00:00:00:00 brd 00:00:00:00:00:00
+    inet 127.0.0.1/8 scope host lo
+       valid_lft forever preferred_lft forever
+    inet6 ::1/128 scope host 
+       valid_lft forever preferred_lft forever
+2: eth0: <NO-CARRIER,BROADCAST,MULTICAST,UP> mtu 1500 qdisc pfifo_fast state DOWN group default qlen 1000
+    link/ether b8:27:eb:36:6f:a7 brd ff:ff:ff:ff:ff:ff
+3: wlan0: <BROADCAST,MULTICAST,UP,LOWER_UP> mtu 1500 qdisc pfifo_fast state UP group default qlen 1000
+    link/ether b8:27:eb:63:3a:f2 brd ff:ff:ff:ff:ff:ff
+    inet 192.168.178.154/24 brd 192.168.178.255 scope global dynamic noprefixroute wlan0
+       valid_lft 863877sec preferred_lft 755877sec
+    inet6 fe80::3d3b:d9af:5ca6:e45e/64 scope link 
+       valid_lft forever preferred_lft forever
+
+--> es wird KEINE statische IP-Adresse eingerichtet!
+
+
+3. Über SSH anmelden:
+---------------------
+PC$ ssh pi@192.168.178.154 # oder künftig(?): ssh pi@phoniebox1
+
+
+4. Autologin aktivieren:
+------------------------
+$ sudo raspi-config
+Folgenden Menüpunkt wählen:
+3 Boot Options
+  B1 Desktop / CLI
+     B2 Console Autologin (diesen Punkt auswählen)
+--> Siehe Screenshots autologin??.png
+
+####SICHERUNGSDATEI: phoniebox_Buster20200106_01_WLAN+Autologin.img
+
+
+5. HifiBerry MiniAmp einrichten: 
+--------------------------------
+Quelle: https://forum-raspberrypi.de/forum/thread/36628-hifiberry-miniamp-aktivieren/?postID=307662#post307662
+
+$ sudo nano /boot/config.txt
+# Enable audio (loads snd_bcm2835)
+####dtparam=audio=on
+# added by schlizbäda for HifiBerry MiniAmp usage:
+dtoverlay=hifiberry-dac
+
+$ sudo nano /etc/asound.conf
+#pcm.!default {
+# type hw card 0
+#}
+#ctl.!default {
+# type hw card 0
+#}
+
+pcm.hifiberryMiniAmp {
+    type softvol
+    slave.pcm "plughw:0"
+    control.name "Master"
+    control.card 0
+}
+pcm.!default {
+    type       plug
+    slave.pcm  "hifiberryMiniAmp"
+}
+
+$ sudo reboot
+$ aplay -l
+**** List of PLAYBACK Hardware Devices ****
+card 0: sndrpihifiberry [snd_rpi_hifiberry_dac], device 0: HifiBerry DAC HiFi pcm5102a-hifi-0 []
+  Subdevices: 1/1
+  Subdevice #0: subdevice #0
+$ speaker-test -D hifiberryMiniAmp -c 2
+$ alsamixer
+
+
+
+
+6. MANUELLE Installation der Phoniebox-Software:
+------------------------------------------------
+6.1. benötigte Programmpakete & Libraries installieren:
+$ # sudo apt-get install apt-transport-https samba samba-common-bin python-dev python-pip gcc raspberrypi-kernel-headers lighttpd php7.3-common php7.3-cgi php7.3 php7.3-fpm at mpd mpc mpg123 git ffmpeg python-mutagen
+
+--> ohne das depperte Paket raspberrypi-kernel-headers, das sich bei seiner Installation aufhängt:
+$ sudo apt-get install apt-transport-https samba samba-common-bin python-dev python-pip gcc lighttpd php7.3-common php7.3-cgi php7.3 php7.3-fpm at mpd mpc mpg123 git ffmpeg python-mutagen
+
+Projekt "RPi-Jukebox-RFID" von github klonen:
+$ git clone https://github.com/MiczFlor/RPi-Jukebox-RFID.git
+$ cd RPi-Jukebox-RFID
+In der Datei requirements.txt ist (vermutlich au einem alten Stand herrührend) das Paket spidev auskommentiert.
+Es wurde im Editor wieder eingefügt:
+$ sudo nano requirements.txt
+# Library dependencies for the python code.  You need to install these with
+# `sudo pip install -r requirements.txt` before you can run this.
+
+#### ESSENTIAL LIBRARIES FOR MAIN FUNCTIONALITY ####
+
+# related libraries.
+evdev==0.7.0
+git+git://github.com/lthiery/SPI-Py.git#egg=spi-py
+youtube_dl
+pyserial
+# spidev - currently installed via apt-get
+# added by schlizbäda:
+spidev
+RPi.GPIO
+pi-rc522
+
+# Type checking for python
+# typing
+.
+.
+.
+
+6.2. Python-"Requirements" installieren:
+........................................
+irgendwie ist in der Datei requirements.txt der Eintrag "spidev" auskommentiert
+und er wird -- im Gegensatz zum Kommentar -- nicht installiert!
+Daher eine eigene *.txt-Datei erstellen und spidev installieren:
+$ echo spidev >spidev.txt
+$ pip install -r spidev.txt
+$ pip install -r requirements.txt
+Wenn man das nicht so macht, kommt die folgende Fehlermeldung:
+Collecting pi-rc522 (from -r requirements.txt (line 15))
+  Using cached https://files.pythonhosted.org/packages/84/f2/e3d02257949e9caa9bff26044e0185e743ff45d3e0e099a93880e10bf718/pi-rc522-2.2.1.tar.gz
+    Complete output from command python setup.py egg_info:
+    Traceback (most recent call last):
+      File "<string>", line 1, in <module>
+      File "/tmp/pip-install-xUSOps/pi-rc522/setup.py", line 11, in <module>
+        from pirc522 import __version__  # flake8: noqa
+      File "pirc522/__init__.py", line 4, in <module>
+        from .rfid import RFID
+      File "pirc522/rfid.py", line 2, in <module>
+        import spidev
+    ImportError: No module named spidev
+    
+    ----------------------------------------
+Command "python setup.py egg_info" failed with error code 1 in /tmp/pip-install-xUSOps/pi-rc522/
+
+
+6.3. evdev: expose common interfaces: Einbinden des RFID-Lesers als Python(?)-Event
+$ sudo pip install evdev
+
+
+6.4. Webservice für die Web-App der Phoniebox:
+$ sudo nano /etc/lighttpd/lighttpd.conf
+Folgende Änderungen vornehmen und die alte Zeile auskommentieren:
+# adjusted by schlizbäda due to https://github.com/MiczFlor/RPi-Jukebox-RFID/wiki/INSTALL-stretch#lighttpd-web-server-for-web-app
+server.document-root        = "/home/pi/RPi-Jukebox-RFID/htdocs"
+#server.document-root        = "/var/www/html"
+
+$ sudo nano sudoers
+als letzte Zeile ergänzen:
+www-data ALL=(ALL) NOPASSWD: ALL
+
+Dem Webserver die PHP-Zuordnung mitteilen:
+$ sudo lighttpd-enable-mod fastcgi
+$ sudo lighttpd-enable-mod fastcgi-php
+$ sudo nano /etc/lighttpd/conf-available/15-fastcgi-php.conf
+# -*- depends: fastcgi -*-
+# /usr/share/doc/lighttpd/fastcgi.txt.gz
+# http://redmine.lighttpd.net/projects/lighttpd/wiki/Docs:ConfigurationOptions#mod_fastcgi-fastcgi
+
+## Start an FastCGI server for php (needs the php5-cgi package)
+fastcgi.server += ( ".php" =>
+        ((
+                "socket" => "/var/run/php/php7.3-fpm.sock",
+                "broken-scriptfilename" => "enable"
+        ))
+)
+$ sudo service lighttpd force-reload
+
+Web-App-Konfigurationsdatei kopieren:
+$ sudo cp /home/pi/RPi-Jukebox-RFID/htdocs/config.php.sample /home/pi/RPi-Jukebox-RFID/config.php
+
+Zugriff auf Verzeichnisse shared und htdocs für den Webservice ermöglichen:
+$ sudo chown -R pi:www-data /home/pi/RPi-Jukebox-RFID/shared
+$ sudo chmod -R 775 /home/pi/RPi-Jukebox-RFID/shared
+$ sudo chown -R pi:www-data /home/pi/RPi-Jukebox-RFID/htdocs
+$ sudo chmod -R 775 /home/pi/RPi-Jukebox-RFID/htdocs
+
+
+
+
+
+7. MPD installieren/einrichten:
+-------------------------------
+$ sudo nano /etc/mpd.conf
+Dabei folgende Einträge anpassen:
+    music_directory    "/home/pi/RPi-Jukebox-RFID/shared/audiofolders"
+    playlist_directory "/home/pi/RPi-Jukebox-RFID/playlists"
+    user               "root"
+    auto_update        "yes"                    (you have to remove the # in front of that line)
+    auto_update_depth  "10"                     (remove the # and change the value to 10)
+    #mixer_control      "yourAudioIfaceNameHere" (you need to uncomment this line and change the audio iFace shortname)
+    mixer_control      "Master"
+
+um die Bezeichnung für mixer_control herauszufinden:
+$ amixer scontrols # liefert z.B. bei MiniAmp-Installation:
+Simple mixer control 'Master',0
+$ mpc update
+
+####SICHERUNGSDATEI: if=phoniebox_Buster20200106_02_Phoniebox_installed.img
+
+
+
+8. RFID-Leser einrichten:
+-------------------------
+8.1. RFID-Leser überprüfen
+* Piepton beim Hochfahren
+* Piepton beim Lesen einer RFID-Karte
+* "event" für RFID-Leser eingerichtet? Prüfen mit
+$ ls -la /dev/input/by-id # TODO: wurde das bei evdev eingerichtet?
+total 0
+drwxr-xr-x 2 root root  60 Jan 11 15:36 .
+drwxr-xr-x 4 root root 120 Jan 11 15:36 ..
+lrwxrwxrwx 1 root root   9 Jan 11 15:36 usb-HXGCoLtd_27db-event-kbd -> ../event0
+
+8.2. RFID-Leser registrieren:
+$ cd /home/pi/RPi-Jukebox-RFID/scripts
+$ python2 RegisterDevice.py # liefert z.B.:
+Choose the reader from list
+0 HID 046a:0011
+1 HXGCoLtd Keyboard
+Device Number: 1
+
+8.3. RFID-Konfigurationsdatei anpassen:
+$ cd /home/pi/RPi-Jukebox-RFID/settings
+$ cp rfid_trigger_play.conf.sample rfid_trigger_play.conf
+$ sudo chown pi:pi rfid_trigger_play.conf
+$ sudo chmod 665 rfid_trigger_play.conf
+
+
+9. Audioparameter setzen:
+-------------------------
+$ echo "Master" > /home/pi/RPi-Jukebox-RFID/settings/Audio_iFace_Name
+$ echo "3" > /home/pi/RPi-Jukebox-RFID/settings/Audio_Volume_Change_Step
+$ echo "100" > /home/pi/RPi-Jukebox-RFID/settings/Max_Volume_Limit
+$ echo "0" > /home/pi/RPi-Jukebox-RFID/settings/Idle_Time_Before_Shutdown
+
+
+10. Autostart der Phoniebox:
+----------------------------
+Diese Dateien sind zwar für "Stretch", aber auch dort gab es schon systemd.
+Daher spielt es keine Rolle, dass wir die "Stretch"-Dateien für "Buster" verwenden.
+$ sudo cp /home/pi/RPi-Jukebox-RFID/misc/sampleconfigs/phoniebox-rfid-reader.service.stretch-default.sample /etc/systemd/system/phoniebox-rfid-reader.service
+$ sudo cp /home/pi/RPi-Jukebox-RFID/misc/sampleconfigs/phoniebox-startup-sound.service.stretch-default.sample /etc/systemd/system/phoniebox-startup-sound.service
+$ sudo cp /home/pi/RPi-Jukebox-RFID/misc/sampleconfigs/phoniebox-gpio-buttons.service.stretch-default.sample /etc/systemd/system/phoniebox-gpio-buttons.service
+$ sudo cp /home/pi/RPi-Jukebox-RFID/misc/sampleconfigs/phoniebox-idle-watchdog.service.sample /etc/systemd/system/phoniebox-idle-watchdog.service
+
+Neue Dienste bekanntgeben:
+$ sudo systemctl daemon-reload
+
+Dienste "enablen":
+$ sudo systemctl enable phoniebox-idle-watchdog
+$ sudo systemctl enable phoniebox-rfid-reader
+$ sudo systemctl enable phoniebox-startup-sound
+$ sudo systemctl enable phoniebox-gpio-buttons
+
+Dienste starten (anstelle von Reboot):
+$ sudo systemctl start phoniebox-idle-watchdog
+$ sudo systemctl start phoniebox-rfid-reader
+$ sudo systemctl start phoniebox-startup-sound
+$ sudo systemctl start phoniebox-gpio-buttons
+
+Status der Dienste anzeigen:
+$ sudo systemctl status phoniebox-idle-watchdog
+$ sudo systemctl status phoniebox-rfid-reader
+$ sudo systemctl status phoniebox-startup-sound
+$ sudo systemctl status phoniebox-gpio-buttons
+
+MP3-Dateien für Startup und Shutdown kopieren:
+$ cp /home/pi/RPi-Jukebox-RFID/misc/sampleconfigs/startupsound.mp3.sample /home/pi/RPi-Jukebox-RFID/shared/startupsound.mp3
+$ cp /home/pi/RPi-Jukebox-RFID/misc/sampleconfigs/shutdownsound.mp3.sample /home/pi/RPi-Jukebox-RFID/shared/shutdownsound.mp3
+
+$ sudo reboot 
+Die drei ersten Dienste starten und laufen korrekt. Es ertönt z.B. der Startsound
+Der Dienst phoniebox-gpio-buttons startet nicht korrekt, weil das GPIO-Modul noch nicht installiert ist. so?
+$ sudo systemctl status phoniebox-gpio-buttons # hier gibt es einen Fehler:
+● phoniebox-gpio-buttons.service - Phoniebox GPIO Buttons Service
+   Loaded: loaded (/etc/systemd/system/phoniebox-gpio-buttons.service; enabled; vendor preset: enabled)
+   Active: failed (Result: exit-code) since Sat 2020-01-11 16:46:31 CET; 1min 55s ago
+  Process: 797 ExecStart=/home/pi/RPi-Jukebox-RFID/scripts/gpio-buttons.py (code=exited, status=203/EXEC)
+ Main PID: 797 (code=exited, status=203/EXEC)
+
+Jan 11 16:46:31 phoniebox1 systemd[1]: phoniebox-gpio-buttons.service: Service RestartSec=100ms expired, scheduling resta
+Jan 11 16:46:31 phoniebox1 systemd[1]: phoniebox-gpio-buttons.service: Scheduled restart job, restart counter is at 5.
+Jan 11 16:46:31 phoniebox1 systemd[1]: Stopped Phoniebox GPIO Buttons Service.
+Jan 11 16:46:31 phoniebox1 systemd[1]: phoniebox-gpio-buttons.service: Start request repeated too quickly.
+Jan 11 16:46:31 phoniebox1 systemd[1]: phoniebox-gpio-buttons.service: Failed with result 'exit-code'.
+Jan 11 16:46:31 phoniebox1 systemd[1]: Failed to start Phoniebox GPIO Buttons Service.
+
+
+
+11. Zuordnung von RFID-Karten zu Audioverzeichnissen herstellen:
+t.b.d.
+
+
+12. OnOffShim einrichten
+------------------------
+Quelle: https://retropie.org.uk/forum/topic/15727/tutorial-onoff-shim-exposed-neat-powerswitch-from-pimoroni/4
+Anstelle der "daemon hell" aus dem undurchsichtigen(?) Pimoroni-Installer
+werden die beiden einfachen(?) Shellskripte 
+* onoffshim_gpio-shutoff.sh
+* onoffshim_switch.sh
+
+Dabei wurde in ...gpio-shutoff.sh die Ansteuerung der Relaisschaltung ergänzt
+und in ...switch.sh das Abspielen von /home/pi/RPi-Jukebox-RFID/shared/shutdownsound.mp3,
+um akustisches Feedback zu geben, wann die Taste lange genug für den Shutdown gedruckt gehalten wurde.
+
+Um das Abschalten mit dem "Relais-Puffer" (siehe https://forum-raspberrypi.de/forum/thread/45820-phoniebox-2-0-rc7-mpd-spielt-ueber-rfid-karte-gewaehlte-musik-nicht-ab/?postID=413207#post413207)
+über systemd beim Herunterfahren aufzurufen, muss die Datei ...gpio-shutoff.sh
+nach /lib/systemd/system-shutdown/onoffshim_gpio-shutoff.sh kopiert werden!
+
+Die Datei ...switch.sh dient als Überwachung von GPIO17 und muss im "Autostart" drin sein:
+HINTERGRUND-Aufruf in /etc/rc.local (mit &)
+
+
+13. OLED-Display einrichten:
+----------------------------
+Quellen:
+https://github.com/splitti/oled_phoniebox
+https://splittscheid.de/selfmade-phoniebox/#5_3
+
+Projekt/Repository herunterladen und Installer starten:
+$ cd; rm o4p_installer.sh; wget https://raw.githubusercontent.com/splitti/oled_phoniebox/master/scripts/install/o4p_installer.sh; chmod +x o4p_installer.sh; ./o4p_installer.sh
+
+Bei der Manipulation der Datei /home/pi/RPi-Jukebox-RFID/scripts/gpio-buttons.py
+die Option 3 (Skip) wählen und das Ganze hinterher manuell durchführen:
+Wichtig dabei, die Definition für die Taste "shut" auszukommentieren!!!!!
+$ nano /home/pi/RPi-Jukebox-RFID/scripts/gpio-buttons.py
+
+.
+.
+.
+# adjusted by schlizbäda due to usage of HifiBerry MiniAmp:
+#shut = Button(3, hold_time=2)
+#vol0 = Button(13,pull_up=True)
+#volU = Button(16,pull_up=True,hold_time=0.3,hold_repeat=True)
+#volD = Button(19,pull_up=True,hold_time=0.3,hold_repeat=True)
+#next = Button(26,pull_up=True)
+#prev = Button(20,pull_up=True)
+#halt = Button(21,pull_up=True)
+###shut = Button(3,hold_time=2) # --> Pin 5 # no longer necessary due to OnOffShim
+vol0 = Button(13,pull_up=True) # --> Pin 33
+volU = Button(12,pull_up=True,hold_time=0.3,hold_repeat=True) # --> Pin 32
+volD = Button(6,pull_up=True,hold_time=0.3,hold_repeat=True) # --> Pin 31
+next = Button(7,pull_up=True) # --> Pin 26
+prev = Button(8,pull_up=True) # --> Pin 24
+halt = Button(5,pull_up=True) # --> Pin 29
+#reco = Button(6, pull_up=True) # Choose GPIO to fit your hardware
+#play = Button(12,pull_up=True) # Choose GPIO to fit your hardware
+
+###shut.when_held = def_shutdown # no longer necessary due to OnOffShim
+vol0.when_pressed = def_vol0
+volU.when_pressed = def_volU
+#When the Volume Up button was held for more than 0.3 seconds every 0.3 seconds he will call a ra$
+volU.when_held = def_volU
+volD.when_pressed = def_volD
+#When the Volume Down button was held for more than 0.3 seconds every 0.3 seconds he will lower t$
+volD.when_held = def_volD
+next.when_pressed = def_next
+prev.when_pressed = def_prev
+halt.when_pressed = def_halt
+#reco.when_pressed = def_recordstart
+#reco.when_released = def_recordstop
+#play.when_pressed = def_recordplaylatest
+
+pause()
+
+
+
+
+
+
+
+14. Quellen
+-----------
+* "one-line installer":
+https://github.com/MiczFlor/RPi-Jukebox-RFID/wiki/INSTALL-stretch#one-line-install-command
+
+* Aktion bei wiederholtem Einlesen der gleichen RFID-Karte:
+https://github.com/MiczFlor/RPi-Jukebox-RFID/wiki/MANUAL#settingssecond_swipe
+/home/pi/RPi-Jukebox-RFID/settings/Second_Swipe
+
+* RFID-Karten für Phoniebox-Steuerung einrichten:
+https://github.com/MiczFlor/RPi-Jukebox-RFID/wiki/MANUAL#phoniebox-controls-using-rfid-cards
+/home/pi/RPi-Jukebox-RFID/settings/rfid_trigger_play.conf
+
+* Taster einbinden:
+https://github.com/MiczFlor/RPi-Jukebox-RFID/wiki/Using-GPIO-hardware-buttons
+/home/pi/RPi-Jukebox-RFID/scripts/gpio-buttons.py
+
+
+
+
+
+
+
+
+
+
+
+
+###############################################################################
+###############################################################################
+###############################################################################
+###############################################################################
+###############################################################################
+###############################################################################
+###############################################################################
+###############################################################################
+###############################################################################
+###############################################################################
+###############################################################################
+###############################################################################
+###############################################################################
+###############################################################################
+###############################################################################
+###############################################################################
+###############################################################################
+###############################################################################
+###############################################################################
+###############################################################################
+###############################################################################
+###############################################################################
+###############################################################################
+###############################################################################
+2. Phoniebox-Software auf BUSTER über das Internet mit dem sogenannten
+   "one-line installer" installieren:
+
+
+3. ALSA und MPD einrichten:
+MPD: wird durch das Installationsprogramm eingerichtet, ansonsten:
+              https://forum-raspberrypi.de/forum/thread/42168-phoniebox-dac-installieren-und-anschlie%C3%9Fen/?postID=373851#post373851
+ALSA/MiniAmp: https://forum-raspberrypi.de/forum/thread/36628-hifiberry-miniamp-aktivieren/?postID=307662#post307662
+Achtung: Im Python-Skript /home/pi/RPi-Jukebox-RFID/scripts/gpio-buttons.py
+         werden die Pins für gpizero dermaßen unglücklich gewählt, dass ein
+         Betrieb über I2S mit einer Hifiberry-Karte nicht möglich ist:
+    shut = Button(3, hold_time=2) # --> Pin 5, ???
+    vol0 = Button(13,pull_up=True) # --> Pin 33, passt
+    #volU = Button(16,pull_up=True,hold_time=0.3,hold_repeat=True) # --> Pin 36, PAM8403 MUTE
+    #volD = Button(19,pull_up=True,hold_time=0.3,hold_repeat=True) # --> Pin 35, I2S-SYNC
+    #next = Button(26,pull_up=True) # --> Pin 37, PAM8403 SHDN
+    #prev = Button(20,pull_up=True) # --> Pin 38, reserved for I2S input
+    #halt = Button(21,pull_up=True) # --> Pin 40, I2S-DATA
+    ##reco = Button(6, pull_up=True) # Choose GPIO to fit your hardware
+    ##play = Button(12,pull_up=True) # Choose GPIO to fit your hardware
+besser so, wie es z.B. splitti79 gemacht hat:
+         | Taster          | LED
+   Power |                 | GPIO 25, Pin 22
+    volU | GPIO 16, Pin 36 | GPIO 24, Pin 18 --> Taster kollidiert mit PAM8403 MUTE
+    volD | GPIO 13, Pin 33 | GPIO 23, Pin 16 
+    next | GPIO 26, Pin 37 | GPIO 22, Pin 15 --> Taster kollidiert mit PAM8403 SHDN
+    prev | GPIO 27, Pin 13 | GPIO  5, Pin 29
+    play | GPIO 12, Pin 32 | GPIO  6, Pin 31
+oder meine Variante:
+--------------------
+         | Taster          | LED
+   Power |                 | GPIO , Pin 
+    volU | GPIO 12, Pin 32 | GPIO 25, Pin 22
+    volD | GPIO  6, Pin 31 | GPIO 24, Pin 18 
+    next | GPIO  7, Pin 26 | GPIO  9, Pin 21
+    prev | GPIO  8, Pin 24 | GPIO 10, Pin 19
+    play | GPIO  5, Pin 29 | GPIO 11, Pin 23
+shut = Button(3,hold_time=2) # --> Pin 5
+vol0 = Button(13,pull_up=True) # --> Pin 33
+volU = Button(12,pull_up=True,hold_time=0.3,hold_repeat=True) # --> Pin 32
+volD = Button(6,pull_up=True,hold_time=0.3,hold_repeat=True) # --> Pin 31
+next = Button(7,pull_up=True) # --> Pin 26
+prev = Button(8,pull_up=True) # --> Pin 24
+halt = Button(5,pull_up=True) # --> Pin 29
+
+
+4. mpg123 installieren:
+$ sudo apt install mpg123
+
+
+5. Phoniebox konfigurieren/einrichten ("quick start"):
+
+5.1. RFID-Leser richtig installiert (evdev: Python-Event für RFID-Leser)?
+* Piepton beim Hochfahren
+* Piepton beim Lesen einer RFID-Karte
+* "event" für RFID-Leser eingerichtet? Prüfen mit
+$ ls -la /dev/input/by-id
+total 0
+drwxr-xr-x 2 root root  60 Jan 11 11:10 .
+drwxr-xr-x 4 root root 120 Jan 11 11:10 ..
+lrwxrwxrwx 1 root root   9 Jan 11 11:10 usb-HXGCoLtd_27db-event-kbd -> ../event0
+
+5.2. USB-RFID-Leser für Phoniebox registrieren:
+$ cd /home/pi/RPi-Jukebox-RFID/scripts
+$ python2 RegisterDevice.py # passiert bereits im "one-line installer"!
+$ cat deviceName.txt        # zeigt den registrierten RFID-Leser an
+
+5.3. Konfigurationsdatei für die Zuordnung der RFID-Karten (Sonderfunktionen):
+$ cd /home/pi/RPi-Jukebox-RFID/settings/
+$ sudo chown pi:pi rfid_trigger_play.conf
+$ sudo chmod 665 rfid_trigger_play.conf
+$ nano rfid_trigger_play.conf # in dieser Datei ist die Syntax erklärt
+
+5.4. diverse Dateien prüfen/anpassen (sofern nicht bei der Installation geschehen):
+$ cat Audio_iFace_Name
+Master
+$ cat Max_Volume_Limit
+100
+$ cat Audio_Volume_Change_Step
+3
+$ cat Idle_Time_Before_Shutdown
+0
+
+5.5. Autostart der Phoniebox einrichten:
+systemd-Autostart einrichten
+* Services erstellen:
+$ sudo cp /home/pi/RPi-Jukebox-RFID/misc/sampleconfigs/phoniebox-rfid-reader.service.stretch-default.sample /etc/systemd/system/phoniebox-rfid-reader.service
+$ sudo cp /home/pi/RPi-Jukebox-RFID/misc/sampleconfigs/phoniebox-startup-sound.service.stretch-default.sample /etc/systemd/system/phoniebox-startup-sound.service
+$ sudo cp /home/pi/RPi-Jukebox-RFID/misc/sampleconfigs/phoniebox-gpio-buttons.service.stretch-default.sample /etc/systemd/system/phoniebox-gpio-buttons.service
+$ sudo cp /home/pi/RPi-Jukebox-RFID/misc/sampleconfigs/phoniebox-idle-watchdog.service.sample /etc/systemd/system/phoniebox-idle-watchdog.service
+* Die neuen Services dem systemd mitteilen/bekannt geben:
+$ sudo systemctl daemon-reload
+* Die neuen Services in den systemd-Autostart einfügen:
+$ sudo systemctl enable phoniebox-idle-watchdog
+$ sudo systemctl enable phoniebox-rfid-reader
+$ sudo systemctl enable phoniebox-startup-sound
+$ sudo systemctl enable phoniebox-gpio-buttons
+* neu starten ODER Services manuell starten:
+$ sudo reboot
+$ #sudo systemctl start phoniebox-idle-watchdog
+$ #sudo systemctl start phoniebox-rfid-reader
+$ #sudo systemctl start phoniebox-startup-sound
+$ #sudo systemctl start phoniebox-gpio-buttons
+
+
+
+
+#%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+2. Phoniebox-Software MANUELL installieren:
+https://github.com/MiczFlor/RPi-Jukebox-RFID/wiki/INSTALL-stretch#install-required-packages-and-the-phoniebox-code
+
+2.1. zusätzliche Programmpakete installieren
+Pakete für RPi-Jukebox-RFID installieren:
+$ sudo apt-get update
+$ #sudo apt-get install apt-transport-https samba samba-common-bin python-dev python-pip gcc raspberrypi-kernel-headers lighttpd php7.3-common php7.3-cgi php7.3 php7.3-fpm at mpd mpc mpg123 git ffmpeg python-mutagen
+$ sudo apt-get install apt-transport-https samba samba-common-bin python-dev python-pip gcc                            lighttpd php7.3-common php7.3-cgi php7.3 php7.3-fpm at mpd mpc mpg123 git ffmpeg python-mutagen
+
+Projekt von Github klonen:
+$ cd /home/pi/
+$ git clone https://github.com/MiczFlor/RPi-Jukebox-RFID.git
+
+Python-"Requirements" installieren:
+$ cd RPi-Jukebox-RFID
+$ echo spidev >spidev.txt   # Python-Paket "spidev" für pip-Installion herrichten
+$ pip install -r spidev.txt # Da hat Mr. MiczFlor für Raspbian Lite nämlich mal wieder etwas unterschlagen
+$ pip install -r requirements.txt # Wie sieht's mit pip3/python3 aus?
+
+2.2. Samba installieren, um später von Windows auf die Phoniebox zu kommen
+$ sudo apt install samba samba-common smbclient
+$ sudo nano /etc/samba.smb.conf
+Im Editor folgende Einträge kontrollieren/ergänzen/anpassen:
+  [global]
+    workgroup = WORKGROUP
+    wins support = yes
+
+  [phoniebox]
+    comment=Pi Jukebox
+    path=/home/pi/RPi-Jukebox-RFID/shared
+    browseable=Yes
+    writeable=Yes
+    only guest=no
+    create mask=0777
+    directory mask=0777
+    public=no
+    veto files=/._*/.DS_Store/
+
+  # Bei Änderung des Audio-Verzeichnisses:
+  [phoniebox_audio]
+    comment=Pi Jukebox
+    path=/path/to/audiofolders
+    browseable=Yes
+    writeable=Yes
+    only guest=no
+    create mask=0777
+    directory mask=0777
+    public=no
+    veto files=/._*/.DS_Store/
+$ sudo smbpasswd -a pi # z.B. mit dem Standardpasswort "raspberry" (gefährlich!)
+New SMB password:
+Retype new SMB password:
+Added user pi.
+
+2.3. evdev: Python-Event für RFID-Leser einrichten:
+$ sudo pip install evdev
+Looking in indexes: https://pypi.org/simple, https://www.piwheels.org/simple
+Collecting evdev
+  Downloading https://files.pythonhosted.org/packages/fe/6e/3fa84a43571dec4d00dc26befccc9867b6b3263651531cbc1345f718860f/evdev-1.2.0.tar.gz
+Building wheels for collected packages: evdev
+  Running setup.py bdist_wheel for evdev ... done
+  Stored in directory: /root/.cache/pip/wheels/05/f9/96/72f2a2385b675af9e80b05582472178948c2d36aab8c0380df
+Successfully built evdev
+Installing collected packages: evdev
+Successfully installed evdev-1.2.0
+
+2.4. lighttpd: Webserver einrichten
+$ sudo nano /etc/lighttpd/lighttpd.conf
+Änderung der folgenden Zeile:
+server.document-root = "/home/pi/RPi-Jukebox-RFID/htdocs"
+
+$ sudo nano /etc/sudoers
+Einfügen der folgenden Zeile:
+www-data ALL=(ALL) NOPASSWD: ALL
+$ sudo lighttpd-enable-mod fastcgi
+$ sudo lighttpd-enable-mod fastcgi-php
+$ sudo nano /etc/lighttpd/conf-available/15-fastcgi-php.conf
+folgende beide Zeilen anpassen:
+fastcgi.server += ( ".php" =>
+        ((
+                "socket" => "/var/run/php/php7.3-fpm.sock",
+                "broken-scriptfilename" => "enable"
+        ))
+)
+$ sudo service lighttpd force-reload
+
+2.5. File upload via web app: Anpassungen von php.ini
+Überürpfen, ob in der Datei /home/pi/RPi-Jukebox-RFID/misc/sampleconfigs/php.ini.stretch-default.sample
+folgende Zeilen enthalten sind:
+$ nano /home/pi/RPi-Jukebox-RFID/misc/sampleconfigs/php.ini.stretch-default.sample
+file_uploads = On
+upload_max_filesize = 0
+max_file_uploads = 20
+post_max_size = 0
+$ sudo cp /home/pi/RPi-Jukebox-RFID/misc/sampleconfigs/php.ini.stretch-default.sample /etc/php/7.3/fpm/php.ini
+$ sudo chown root:root /etc/php/7.3/fpm/php.ini
+$ sudo chmod 644 /etc/php/7.3/fpm/php.ini
+PHP7.3 mit neuem ini-File starten:
+$ sudo service php7.3-fpm restart
+
+
+
+
+
+
+
+###############################################################################
+2. Phoniebox-Software auf BUSTER über das Internet mit dem sogenannten
+   "one-line installer" installieren:
+vorher Pakete installieren:
+$ sudo apt install git
+$ sudo apt install python-pip
+$ sudo apt install python3-pip
+bzw. in der Anleitung schauen
+
+
+Dann den "one-line installer" ausführen:
+$ cd
+$ rm stretch-install-*
+$ wget https://raw.githubusercontent.com/MiczFlor/RPi-Jukebox-RFID/master/scripts/installscripts/stretch-install-default.sh
+$ chmod +x stretch-install-default.sh
+$ ./stretch-install-default.s
+Dabei alle Hinweise befolgen!
+WiFi habe ich vorerst weggelassen
+ALSA: mit PCM einrichten, Hifiberry MiniAmp später!
+- Einstellungen unter ~/RPi-Jukebox-RFID/settings
+- Audiodateien unter  ~/RPi-Jukebox-RFID/shared/audiofolders
+- RFID-Verknüpfungen  ~/RPi-Jukebox-RFID/shared/shortcuts
+
+3. ALSA und MPD einrichten:
+MPD: wird durch das Installationsprogramm eingerichtet, ansonsten:
+              https://forum-raspberrypi.de/forum/thread/42168-phoniebox-dac-installieren-und-anschlie%C3%9Fen/?postID=373851#post373851
+ALSA/MiniAmp: https://forum-raspberrypi.de/forum/thread/36628-hifiberry-miniamp-aktivieren/?postID=307662#post307662
+Achtung: Im Python-Skript /home/pi/RPi-Jukebox-RFID/scripts/gpio-buttons.py
+         werden die Pins für gpizero dermaßen unglücklich gewählt, dass ein
+         Betrieb über I2S mit einer Hifiberry-Karte nicht möglich ist:
+    shut = Button(3, hold_time=2) # --> Pin 5, ???
+    vol0 = Button(13,pull_up=True) # --> Pin 33, passt
+    #volU = Button(16,pull_up=True,hold_time=0.3,hold_repeat=True) # --> Pin 36, PAM8403 MUTE
+    #volD = Button(19,pull_up=True,hold_time=0.3,hold_repeat=True) # --> Pin 35, I2S-SYNC
+    #next = Button(26,pull_up=True) # --> Pin 37, PAM8403 SHDN
+    #prev = Button(20,pull_up=True) # --> Pin 38, reserved for I2S input
+    #halt = Button(21,pull_up=True) # --> Pin 40, I2S-DATA
+    ##reco = Button(6, pull_up=True) # Choose GPIO to fit your hardware
+    ##play = Button(12,pull_up=True) # Choose GPIO to fit your hardware
+besser so, wie es z.B. splitti79 gemacht hat:
+         | Taster          | LED
+   Power |                 | GPIO 25, Pin 22
+    volU | GPIO 16, Pin 36 | GPIO 24, Pin 18 --> Taster kollidiert mit PAM8403 MUTE
+    volD | GPIO 13, Pin 33 | GPIO 23, Pin 16 
+    next | GPIO 26, Pin 37 | GPIO 22, Pin 15 --> Taster kollidiert mit PAM8403 SHDN
+    prev | GPIO 27, Pin 13 | GPIO  5, Pin 29
+    play | GPIO 12, Pin 32 | GPIO  6, Pin 31
+oder meine Variante:
+--------------------
+         | Taster          | LED
+   Power |                 | GPIO , Pin 
+    volU | GPIO 12, Pin 32 | GPIO 25, Pin 22
+    volD | GPIO  6, Pin 31 | GPIO 24, Pin 18 
+    next | GPIO  7, Pin 26 | GPIO  9, Pin 21
+    prev | GPIO  8, Pin 24 | GPIO 10, Pin 19
+    play | GPIO  5, Pin 29 | GPIO 11, Pin 23
+shut = Button(3, hold_time=2) # --> Pin 5
+vol0 = Button(13,pull_up=True) # --> Pin 33
+volU = Button(12,pull_up=True,hold_time=0.3,hold_repeat=True) # --> Pin 32
+volD = Button(6 ,pull_up=True,hold_time=0.3,hold_repeat=True) # --> Pin 31
+next = Button(7 ,pull_up=True) # --> Pin 26
+prev = Button(8 ,pull_up=True) # --> Pin 24
+halt = Button(5,pull_up=True) # --> Pin 29
+
+
