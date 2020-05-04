@@ -11,7 +11,7 @@ compile by using the [`LaTeX`](https://www.latex-project.org/) project:
 ## Supported languages
 At the moment this documentation is released for following languages:
 * English (planned, not yet finished!)
-* German
+* German (work in progress)
 
 The pdf document translated into a certain language can be found at 
 * [`schlizbaedas_Phoniebox_en.pdf`](https://github.com/schlizbaeda/schlizbaedas_Phoniebox/blob/master/schlizbaedas_Phoniebox_en.pdf)

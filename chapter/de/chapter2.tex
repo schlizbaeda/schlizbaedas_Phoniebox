@@ -12,10 +12,10 @@ Jahre gibt es auf den Kalendern von \textit{MiczFlor} für 2019 und
 %2019: \url{https://drive.google.com/file/d/1NKlertLP0nIKOsHrcqu5pxe6NZU3SfS9/view}\\
 %2020: \url{https://drive.google.com/file/d/1krb8G8Td1Vrf3sYWl44nZyuoJ0DIC5vX/view}
 
-In diesem Kapitel wird der hard- und softwareseitige Aufbau des
-konkreten Exemplars von {\autor} beschrieben. Es werden auch Hinweise 
-gegeben, warum eine bestimmte Umsetzung gewählt wurde. Dabei muss es
-sich nicht unbedingt um die optimale Lösung handeln!
+In diesem Kapitel wird der hardwareseitige Aufbau des konkreten
+Exemplars von {\autor} beschrieben. Es werden auch Hinweise gegeben,
+warum eine bestimmte Umsetzung gewählt wurde. Dabei muss es sich nicht
+unbedingt um die optimale Lösung handeln!
 
 \section{Verwendete Komponenten / Stückliste}
 \begin{table}[h]
@@ -62,6 +62,7 @@ sich nicht unbedingt um die optimale Lösung handeln!
 \end{tabular}
 \vspace{0.5cm}
 \caption{Verwendete Komponenten bei {\autor}s \Bezeichnung}
+\label{tab:bom}
 \end{table}
 
 Bei der Auswahl der Komponenten spielte ein möglichst niedriger Preis
@@ -356,11 +357,11 @@ gehalten wird, der {\RPi} zwar heruntergefahren, aber die
 Versorgungsspannung nicht getrennt wird! Die rote Power-LED des {\RPi}
 leuchtet weiter und es fließt ein deutlicher Strom von ca. 80-90mA,
 der die Powerbank \textit{leersäuft}.\\
-Ich weiß nicht, ob es sich hierbei um ein generelles Problem beim
-{\onoffshim} handelt, oder ob das bloß wieder eine Macke meines
-Exemplars ist. Aber da gerade Kinder kein Gefühl dafür haben, wie lange
-sie die Taste drücken dürfen/sollen, musste eine vernünftige Lösung
-her!
+Mittlerweile weiß ich, dass es sich hierbei eher um ein generelles
+Problem beim {\onoffshim} handelt. Es ist nicht bloß wieder eine Macke
+meines Exemplars! Siehe \url{https://forum-raspberrypi.de/forum/thread/42364-phoniebox-on-off-shim/?postID=425619#post425619}\\
+Aber da gerade Kinder kein Gefühl dafür haben, wie lange sie die Taste
+drücken dürfen/sollen, musste eine vernünftige Lösung her!
 
 Letztlich konnte dieses Problem wie in Abbildung
 \ref{fig:onoffshim_relay} durch den Einbau eines als Öffner geschalteten
@@ -385,7 +386,8 @@ Der Ein-/Aus-Taster hat jetzt drei Funktionalitäten:
 \end{figure}
 
 Dieser Schaltungsteil wurde nachträglich auf der Lochrasterplatine
-ergänzt. \todo{Software dafür in Kapitel 3 beschreiben}
+ergänzt. Die Installation der Software für den {\onoffshim} wird in
+Kapitel \ref{sect:onoffshim_software} beschrieben.
 
 
 \newpage
@@ -513,7 +515,7 @@ mittlerweile auch ca. 10 Jahre alt) innen an der Oberseite der Box
 festzukleben. Eines Tages reagierte die Box nicht mehr auf aufgelegte
 RFID-Karten und nicht einmal das Piepgeräusch des Readers ertönte mehr.
 Frontplatte runter und was sah ich? Der Reader lag mitten in der
-Box\dots\\
+Kiste\dots\\
 Auch zusätzliche Unterstützung durch sogenanntes \textit{Panzertape}
 half nichts, so dass ich den Reader letztlich mit vier Holzschrauben
 vernünftig montierte: Dazu wurden die kleinen Gehäuseschrauben unter den
@@ -534,10 +536,10 @@ Oberseite der {\Bezeichnung} verschraubt.
 \caption{Ladeanzeige der Powerbank an der Unterseite der \Bezeichnung}
 \label{fig:battery_indicator}
 \end{figure}
-Die EasyAcc-Powerbank ist mit vier kleinen LEDs ausgestattet, die über
-die Anzahl der leuchtenden LEDs den prozentualen Ladezustand der
-Powerbank anzeigen. Wenn das Netzteil angesteckt ist und die Powerbank
-geladen wird, blinkt die höchstwertige LED.\\
+Die \textit{EasyAcc}-Powerbank ist mit vier kleinen LEDs ausgestattet,
+die über die Anzahl der leuchtenden LEDs den prozentualen Ladezustand
+der Powerbank anzeigen. Wenn das Netzteil angesteckt ist und die
+Powerbank geladen wird, blinkt die höchstwertige LED.\\
 Der Einfachheit halber habe ich die Powerbank im Gehäuse mit der
 Ladeanzeige nach unten montiert und im Gehäuse an der entsprechenden
 Stelle ein kleines Sichtfenster herausgesägt, siehe Abbildung

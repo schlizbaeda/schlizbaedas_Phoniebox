@@ -1,0 +1,17 @@
+% chapter3_7.tex -- de (German)
+% audio parameters
+\section{Audioparameter der {\Bezeichnung} setzen}
+Die folgenden Kommandos legen im Verzeichnis
+\filenam{/home/pi/RPi-Jukebox-RFID/settings} kleine Textdateien an, die
+das Verhalten der Taster \textit{volume up} und \textit{volume down}
+konfigurieren:\\
+\cmdPi{echo "Master"{} > /home/pi/RPi-Jukebox-RFID/settings/Audio\_iFace\_Name}\\
+\cmdPi{echo "3"{} > /home/pi/RPi-Jukebox-RFID/settings/Audio\_Volume\_Change\_Step}\\
+\cmdPi{echo "100"{} > /home/pi/RPi-Jukebox-RFID/settings/Max\_Volume\_Limit}\\
+\cmdPi{echo "0"{} > /home/pi/RPi-Jukebox-RFID/settings/Idle\_Time\_Before\_Shutdown}
+
+\todo{IDLE-Time untersuchen!}TODO!
+
+MP3-Dateien für Startup und Shutdown kopieren:\\
+\cmdPi{\begin{scriptsize}cp /home/pi/RPi-Jukebox-RFID/misc/sampleconfigs/startupsound.mp3.sample\\ /home/pi/RPi-Jukebox-RFID/shared/startupsound.mp3\end{scriptsize}}\\
+\cmdPi{\begin{scriptsize}cp /home/pi/RPi-Jukebox-RFID/misc/sampleconfigs/shutdownsound.mp3.sample\\ /home/pi/RPi-Jukebox-RFID/shared/shutdownsound.mp3\end{scriptsize}}
