@@ -1,157 +1,46 @@
 % chapter3_11.tex -- de (German)
-% auto start
-%\newpage
+% install splitti79's OLED display
+\section{OLED-Display einrichten}
 
+Die {\Bezeichnung} funktioniert zwar bereits voillständig, nur das
+optionale OLED-Display zeigt noch nichts an. Die Anzeige im Display wird
+über die I2C-Schnittstelle übertragen.
 
+Quellen:\\
+\url{https://github.com/splitti/oled_phoniebox}\\
+\url{https://splittscheid.de/selfmade-phoniebox/#5_3}
 
+Auch dieses Projekt kann über einen sogenannten \software{one line
+installer} installiert werden. Im Gegensatz zum Installer der 
+{\Bezeichnung}-Soft\-ware aus Kapitel
+\label{sect:phoniebox_onelineinstaller} ist der für die OLED-Software
+%von \textbf{@splitti79}
+%(\url{https://forum-raspberrypi.de/user/54710-splitti79/})
+eher noobtauglich \smiley{smile}
 
-%%    \section{\software{systemd:} Autostart der \Bezeichnung-Software einrichten}
-%%    \label{sect:systemd}
-%%    
-%%    \begin{bclogo}[logo = \bclampe, noborder = true]{Hinweis}
-%%    Die in den folgenden Kommandos angegebenen Dateien wurden zwar für
-%%    \os{Raspbian Stretch} vorgesehen, aber auch dort kam schon
-%%    \software{systemd} zum Einsatz. Daher ist es unproblematisch, dass hier
-%%    die \os{Stretch}-Dateien für \os{Raspbian Buster} verwendet werden.
-%%    \textcolor{red}{Wichtig ist aber, dass in Abschnitt \ref{sect:apt-get}
-%%    auch die entsprechenden Pakete für \software{Python3} installiert
-%%    wurden!} 
-%%    \end{bclogo}
-%%    
-%%    
-%%    \cmdPi{\begin{scriptsize}sudo cp /home/pi/RPi-Jukebox-RFID/misc/sampleconfigs/phoniebox-rfid-reader.service.stretch-default.sample\\ /etc/systemd/system/phoniebox-rfid-reader.service\end{scriptsize}}\\
-%%    \cmdPi{\begin{scriptsize}sudo cp /home/pi/RPi-Jukebox-RFID/misc/sampleconfigs/phoniebox-startup-sound.service.stretch-default.sample\\ /etc/systemd/system/phoniebox-startup-sound.service\end{scriptsize}}\\
-%%    \cmdPi{\begin{scriptsize}sudo cp /home/pi/RPi-Jukebox-RFID/misc/sampleconfigs/phoniebox-gpio-buttons.service.stretch-default.sample\\ /etc/systemd/system/phoniebox-gpio-buttons.service\end{scriptsize}}\\
-%%    \cmdPi{\begin{scriptsize}sudo cp /home/pi/RPi-Jukebox-RFID/misc/sampleconfigs/phoniebox-idle-watchdog.service.sample\\ /etc/systemd/system/phoniebox-idle-watchdog.service\end{scriptsize}}
-%%    
-%%    Neue Dienste bekannt geben:\\
-%%    \cmdPi{sudo systemctl daemon-reload}
-%%    
-%%    Dienste aktivieren:\\
-%%    \cmdPi{sudo systemctl enable phoniebox-idle-watchdog}\\
-%%    \cmdPi{sudo systemctl enable phoniebox-rfid-reader}\\
-%%    \cmdPi{sudo systemctl enable phoniebox-startup-sound}\\
-%%    \cmdPi{sudo systemctl enable phoniebox-gpio-buttons}\\
-%%    \stdout{Created symlink /etc/systemd/system/multi-user.target.wants/\textcolor{red}{<Name>}.service --> /etc/systemd/system/\textcolor{red}{<Name>}.service.}
-%%    
-%%    Dienste starten (anstelle eines Reboots):\\
-%%    \cmdPi{sudo systemctl start phoniebox-idle-watchdog}\\
-%%    \cmdPi{sudo systemctl start phoniebox-rfid-reader}\\
-%%    \cmdPi{sudo systemctl start phoniebox-startup-sound}\\
-%%    \cmdPi{sudo systemctl start phoniebox-gpio-buttons}
-%%    
-%%    Status der Dienste anzeigen:\\
-%%    \cmdPi{sudo systemctl status phoniebox-idle-watchdog}\\
-%%    \cmdPi{sudo systemctl status phoniebox-rfid-reader}\\
-%%    \cmdPi{sudo systemctl status phoniebox-startup-sound}\\
-%%    \cmdPi{sudo systemctl status phoniebox-gpio-buttons}
-%%    
-%%    
-%%    %pi@phoniebox1:~/RPi-Jukebox-RFID $ sudo systemctl status phoniebox-idle-watchdog
-%%    %. phoniebox-idle-watchdog.service - Phoniebox Idle Watchdog Service
-%%    %   Loaded: loaded (/etc/systemd/system/phoniebox-idle-watchdog.service; enabled; vendor preset: enabled)
-%%    %   Active: inactive (dead) since Sat 2020-05-02 22:58:40 CEST; 2min 21s ago
-%%    %  Process: 2654 ExecStart=/home/pi/RPi-Jukebox-RFID/scripts/idle-watchdog.sh (code=exited, status=0/SUCCESS)
-%%    % Main PID: 2654 (code=exited, status=0/SUCCESS)
-%%    %
-%%    %May 02 22:57:40 phoniebox1 systemd[1]: Started Phoniebox Idle Watchdog Service.
-%%    %May 02 22:57:40 phoniebox1 sudo[2656]:       pi : TTY=unknown ; PWD=/home/pi/RPi-Jukebox-RFID ; USER=root ; COMMAND=/usr/bin/atq
-%%    %May 02 22:57:40 phoniebox1 sudo[2656]: pam_unix(sudo:session): session opened for user root by (uid=0)
-%%    %May 02 22:57:40 phoniebox1 sudo[2656]: pam_unix(sudo:session): session closed for user root
-%%    %May 02 22:58:40 phoniebox1 systemd[1]: phoniebox-idle-watchdog.service: Succeeded.
-%%    %pi@phoniebox1:~/RPi-Jukebox-RFID $ sudo systemctl status phoniebox-rfid-reader
-%%    %. phoniebox-rfid-reader.service - Phoniebox RFID-Reader Service
-%%    %   Loaded: loaded (/etc/systemd/system/phoniebox-rfid-reader.service; enabled; vendor preset: enabled)
-%%    %   Active: failed (Result: exit-code) since Sat 2020-05-02 22:57:54 CEST; 3min 21s ago
-%%    %  Process: 2684 ExecStart=/home/pi/RPi-Jukebox-RFID/scripts/daemon_rfid_reader.py (code=exited, status=1/FAILURE)
-%%    % Main PID: 2684 (code=exited, status=1/FAILURE)
-%%    %
-%%    %May 02 22:57:54 phoniebox1 systemd[1]: phoniebox-rfid-reader.service: Service RestartSec=100ms expired, scheduling restart.
-%%    %May 02 22:57:54 phoniebox1 systemd[1]: phoniebox-rfid-reader.service: Scheduled restart job, restart counter is at 5.
-%%    %May 02 22:57:54 phoniebox1 systemd[1]: Stopped Phoniebox RFID-Reader Service.
-%%    %May 02 22:57:54 phoniebox1 systemd[1]: phoniebox-rfid-reader.service: Start request repeated too quickly.
-%%    %May 02 22:57:54 phoniebox1 systemd[1]: phoniebox-rfid-reader.service: Failed with result 'exit-code'.
-%%    %May 02 22:57:54 phoniebox1 systemd[1]: Failed to start Phoniebox RFID-Reader Service.
-%%    %pi@phoniebox1:~/RPi-Jukebox-RFID $ sudo systemctl status phoniebox-startup-sound
-%%    %. phoniebox-startup-sound.service - Phoniebox Startup Sound
-%%    %   Loaded: loaded (/etc/systemd/system/phoniebox-startup-sound.service; enabled; vendor preset: enabled)
-%%    %   Active: active (exited) since Sat 2020-05-02 22:57:59 CEST; 3min 29s ago
-%%    %  Process: 2693 ExecStart=/usr/bin/mpg123 /home/pi/RPi-Jukebox-RFID/shared/startupsound.mp3 (code=exited, status=0/SUCCESS)
-%%    % Main PID: 2693 (code=exited, status=0/SUCCESS)
-%%    %
-%%    %May 02 22:57:59 phoniebox1 systemd[1]: Starting Phoniebox Startup Sound...
-%%    %May 02 22:57:59 phoniebox1 mpg123[2693]: High Performance MPEG 1.0/2.0/2.5 Audio Player for Layers 1, 2 and 3
-%%    %May 02 22:57:59 phoniebox1 mpg123[2693]:         version 1.25.10; written and copyright by Michael Hipp and others
-%%    %May 02 22:57:59 phoniebox1 mpg123[2693]:         free software (LGPL) without any warranty but with best wishes
-%%    %May 02 22:57:59 phoniebox1 mpg123[2693]: [src/libmpg123/readers.c:1184] error: Cannot open file /home/pi/RPi-Jukebox-RFID/shared/startupsound.mp3: No such file
-%%    %May 02 22:57:59 phoniebox1 mpg123[2693]: main: [src/mpg123.c:708] error: Cannot open /home/pi/RPi-Jukebox-RFID/shared/startupsound.mp3: File access error. (cod
-%%    %May 02 22:57:59 phoniebox1 systemd[1]: Started Phoniebox Startup Sound.
-%%    %...skipping...
-%%    %. phoniebox-startup-sound.service - Phoniebox Startup Sound
-%%    %   Loaded: loaded (/etc/systemd/system/phoniebox-startup-sound.service; enabled; vendor preset: enabled)
-%%    %   Active: active (exited) since Sat 2020-05-02 22:57:59 CEST; 3min 29s ago
-%%    %  Process: 2693 ExecStart=/usr/bin/mpg123 /home/pi/RPi-Jukebox-RFID/shared/startupsound.mp3 (code=exited, status=0/SUCCESS)
-%%    % Main PID: 2693 (code=exited, status=0/SUCCESS)
-%%    %
-%%    %May 02 22:57:59 phoniebox1 systemd[1]: Starting Phoniebox Startup Sound...
-%%    %May 02 22:57:59 phoniebox1 mpg123[2693]: High Performance MPEG 1.0/2.0/2.5 Audio Player for Layers 1, 2 and 3
-%%    %May 02 22:57:59 phoniebox1 mpg123[2693]:         version 1.25.10; written and copyright by Michael Hipp and others
-%%    %May 02 22:57:59 phoniebox1 mpg123[2693]:         free software (LGPL) without any warranty but with best wishes
-%%    %May 02 22:57:59 phoniebox1 mpg123[2693]: [src/libmpg123/readers.c:1184] error: Cannot open file /home/pi/RPi-Jukebox-RFID/shared/startupsound.mp3: No such file
-%%    %May 02 22:57:59 phoniebox1 mpg123[2693]: main: [src/mpg123.c:708] error: Cannot open /home/pi/RPi-Jukebox-RFID/shared/startupsound.mp3: File access error. (cod
-%%    %May 02 22:57:59 phoniebox1 systemd[1]: Started Phoniebox Startup Sound.
-%%    %~
-%%    %~
-%%    %~
-%%    %~
-%%    %~
-%%    %~
-%%    %~
-%%    %~
-%%    %~
-%%    %~
-%%    %~
-%%    %~
-%%    %~
-%%    %~
-%%    %~
-%%    %~
-%%    %~
-%%    %~
-%%    %~
-%%    %~
-%%    %~
-%%    %~
-%%    %~
-%%    %~
-%%    %~
-%%    %pi@phoniebox1:~/RPi-Jukebox-RFID $ sudo systemctl status phoniebox-gpio-buttons
-%%    %. phoniebox-gpio-buttons.service - Phoniebox GPIO Buttons Service
-%%    %   Loaded: loaded (/etc/systemd/system/phoniebox-gpio-buttons.service; enabled; vendor preset: enabled)
-%%    %   Active: failed (Result: exit-code) since Sat 2020-05-02 22:58:08 CEST; 3min 51s ago
-%%    %  Process: 2711 ExecStart=/home/pi/RPi-Jukebox-RFID/scripts/gpio-buttons.py (code=exited, status=203/EXEC)
-%%    % Main PID: 2711 (code=exited, status=203/EXEC)
-%%    %
-%%    %May 02 22:58:08 phoniebox1 systemd[1]: phoniebox-gpio-buttons.service: Service RestartSec=100ms expired, scheduling restart.
-%%    %May 02 22:58:08 phoniebox1 systemd[1]: phoniebox-gpio-buttons.service: Scheduled restart job, restart counter is at 5.
-%%    %May 02 22:58:08 phoniebox1 systemd[1]: Stopped Phoniebox GPIO Buttons Service.
-%%    %May 02 22:58:08 phoniebox1 systemd[1]: phoniebox-gpio-buttons.service: Start request repeated too quickly.
-%%    %May 02 22:58:08 phoniebox1 systemd[1]: phoniebox-gpio-buttons.service: Failed with result 'exit-code'.
-%%    %May 02 22:58:08 phoniebox1 systemd[1]: Failed to start Phoniebox GPIO Buttons Service.
-%%    %pi@phoniebox1:~/RPi-Jukebox-RFID $ 
-%%    %
-%%    
-%%    
-%%    
-%%    
-%%    
-%%    
-%%    
-%%    
-%%    
-%%    \cmdPi{sudo reboot}
-%%    
-%%    TODO!\todo{Fortsetzung folgt\dots}
-%%    
-%%    
-%%    
+%\verb|cd; rm o4p_installer.sh; wget https://raw.githubusercontent.com/splitti/oled_phoniebox/master/scripts/install/o4p_installer.sh; chmod +x o4p_installer.sh; ./o4p_installer.sh|
+\begin{bclogo}[logo = \bclampe, noborder = true]{Hinweis}
+Aus Gründen des Seitenlayouts wird der \textit{one line installer} in
+seine Einzelbefehle zerlegt. 
+\end{bclogo}
+
+\cmdPi{cd;}\\
+\cmdPi{rm o4p\_installer.sh;}\\
+\cmdPi{\begin{scriptsize}wget https://raw.githubusercontent.com/splitti/oled\_phoniebox/master/scripts/install/o4p\_installer.sh;\end{scriptsize}}\\
+\cmdPi{chmod +x o4p\_installer.sh;}\\
+\cmdPi{./o4p\_installer.sh}\\
+
+Auch hier zeigt eine Bilderstrecke mehr als viele Worte:
+
+\begin{figure}[!h]
+\centering
+\includegraphics[width=0.47\textwidth]{/OLED/oled01.png}
+\includegraphics[width=0.47\textwidth]{/OLED/oled02.png}
+\includegraphics[width=0.47\textwidth]{/OLED/oled03.png}
+\includegraphics[width=0.47\textwidth]{/OLED/oled04.png}
+\includegraphics[width=0.47\textwidth]{/OLED/oled05.png}
+\includegraphics[width=0.47\textwidth]{/OLED/oled06.png}
+\includegraphics[width=0.47\textwidth]{/OLED/oled07.png}
+\includegraphics[width=0.47\textwidth]{/OLED/oled08.png}
+\caption{splitti79s one line installer}
+\end{figure}
