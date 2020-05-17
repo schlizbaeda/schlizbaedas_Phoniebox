@@ -1,0 +1,38 @@
+% chapter3_7.tex -- de (German)
+% audio parameters
+\section{Konfigurationsdateien im Verzeichnis \filenam{RPi-Jukebox-RFID/settings}}
+%%%%\section{Audioparameter der {\Bezeichnung} setzen}
+Das Unterverzeichnis filenam{/home/pi/RPi-Jukebox-RFID/settings} enthält
+einige Konfigurationsdateien, in denen das Verhalten der {\Bezeichnung}
+eingestellt und angepasst werden kann. Der Dateiinhalt bestaht dabei nur
+aus dem gewünschten Parameter. Die Funktion wird durch den Dateinamen
+bestimmt und ist in den jeweiligen Python- \bzw Shellskripten fest
+hinterlegt.\\
+siehe\\
+\begin{smaller}\url{https://github.com/MiczFlor/RPi-Jukebox-RFID/wiki/CONFIGURE-stretch#create-settings-for-audio-playout}\end{smaller}
+
+\subsection{Audioeinstellungen}
+Die folgenden Kommandos legen im Verzeichnis
+\filenam{/home/pi/RPi-Jukebox-RFID/settings} kleine Textdateien an, die
+das Verhalten der Taster \textit{volume up} und \textit{volume down}
+konfigurieren. Ferner kann die maximale Lautstärke begenzt werden:\\
+\cmdPi{echo "Master"{} > /home/pi/RPi-Jukebox-RFID/settings/Audio\_iFace\_Name}\\
+\cmdPi{echo "3"{} > /home/pi/RPi-Jukebox-RFID/settings/Audio\_Volume\_Change\_Step}\\
+\cmdPi{echo "100"{} > /home/pi/RPi-Jukebox-RFID/settings/Max\_Volume\_Limit}
+
+MP3-Dateien für Startup und Shutdown kopieren:\\
+\cmdPi{\begin{scriptsize}cp /home/pi/RPi-Jukebox-RFID/misc/sampleconfigs/startupsound.mp3.sample\\ /home/pi/RPi-Jukebox-RFID/shared/startupsound.mp3\end{scriptsize}}\\
+\cmdPi{\begin{scriptsize}cp /home/pi/RPi-Jukebox-RFID/misc/sampleconfigs/shutdownsound.mp3.sample\\ /home/pi/RPi-Jukebox-RFID/shared/shutdownsound.mp3\end{scriptsize}}
+
+\subsection{automatische Abschaltung bei Nichtbenutzung}
+Gerade bei Kindern ist es sinnvoll, die {\Bezeichnung} nach einiger Zeit
+der Nichtverwendung automatisch abzuschalten, um die Akkulaufzeit zu
+verlängern. Der angegebene Wert ist inaktive Zeit in Minuten
+\textit{ab dem Beenden der \software{mpd}-Playlist}, bevor sich die Box
+automatisch abschaltet. Der Wert 0 deaktiviert diese Funktion.\\ 
+\cmdPi{echo "0"{} > /home/pi/RPi-Jukebox-RFID/settings/Idle\_Time\_Before\_Shutdown}
+
+Ein automatisches Abschalten der {\Bezeichnung} nach 15 Minuten
+Nichtbenutzung erreicht man alternativ durch:\\
+\cmdPi{echo "15"{} > /home/pi/RPi-Jukebox-RFID/settings/Idle\_Time\_Before\_Shutdown}%\comment{Alternative}
+

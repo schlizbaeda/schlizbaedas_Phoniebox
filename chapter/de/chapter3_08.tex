@@ -1,0 +1,118 @@
+% chapter3_8.tex -- de (German)
+% Using GPIO hardware buttons
+\section{Die {\Bezeichnung} mit Tastern an der GPIO-Leiste steuern}
+\label{sect:GPIO-buttons}
+
+Ursprünglich war vorgesehen, bestimmte {\Karte}n mit
+Steuerungsfunktionen zu belegen. Dieses Konzept ist aber gerade bei
+Kindern ungünstig, da (zumindest meine) Kinder solche Sachen in den
+Tiefen ihrer Zimmer sehr gut verstecken \smiley{smile} und die
+{\Bezeichnung} damit zwischenzeitlich(?) unbedienbar wird.\\ 
+Daher hat MiczFlor in seinem github-Repository das Kapitel
+\url{https://github.com/MiczFlor/RPi-Jukebox-RFID/wiki/Using-GPIO-hardware-buttons}
+eingefügt, in dem die Inbetriebnahme der Steuerung über Taster an der
+GPIO-Leiste beschrieben wird.
+
+\begin{bclogo}[arrondi = 0.2, logo = \bcinfo, ombre = true, epOmbre = 0.25, couleurOmbre = black!30,blur]{Achtung}
+Die Pinbelegung in der Anleitung von MiczFlor ordnet den Tastern Pins
+zu, die für die digitale Audioübertragung über I2S zum HifiBerry
+{\miniamp} benötigt werden! Daher muss das Pythonskript für die
+Abfrage der Taster stark angepasst werden!
+\end{bclogo}
+
+Für den Zugriff auf die GPIOs wird die Python-Bibliothek
+\software{gpiozero} verwendet, von der es jeweils eine eigene Variante
+für Python2 und Python 3 gibt. Installation der Bibliothek über
+folgendes Kommando:\\
+\cmdPi{sudo apt-get install python3-gpiozero python-gpiozero}
+\comment{für Python2 \textbf{und} Python3!}
+
+Zur Abfrage der Taster wird das Pythonskript
+\filenam{/home/pi/RPi-Jukebox-RFID/scripts/gpio-buttons.py} verwendet.
+Die Originalvorlage könnte mit folgendem Kommando installiert werden:\\
+\cmdPi{\begin{scriptsize}sudo cp /home/pi/RPi-Jukebox-RFID/misc/sampleconfigs/gpio-buttons.py.sample\\ /home/pi/RPi-Jukebox-RFID/scripts/gpio-buttons.py\end{scriptsize}}
+\comment{funktioniert nicht mit dem \miniamp!}\\
+Allerdings kollidiert die Pinvergabe mit der Pinzuordnung des HifiBerry
+{\miniamp}s!
+
+Bei Einbau des {\miniamp}s muss die von {\autor} angepasste Datei
+verwendet werden! Diese Datei entspricht der Pinbelegung der
+Lochrasterplatine aus Kapitel \ref{sect:prototypingboard}:\\
+\cmdPC{scp ./files/GPIO/gpio-buttons.py pi@phoniebox1:/home/pi/RPi-Jukebox-RFID/scripts}
+
+\cmdPi{nano /home/pi/RPi-Jukebox-RFID/scripts/gpio-buttons.py}\\
+%\begin{verbatim}
+\verb|#shut = Button(3,hold_time=2)  # --> Pin 5 # no longer necessary due to OnOffShim|\\
+\verb|vol0 = Button(13,pull_up=True) # --> Pin 33|\\
+\verb|volU = Button(12,pull_up=True,hold_time=0.3,hold_repeat=True) # --> Pin 32|\\
+\verb|volD = Button(6,pull_up=True,hold_time=0.3,hold_repeat=True)  # --> Pin 31|\\
+\verb|next = Button(7,pull_up=True)  # --> Pin 26|\\
+\verb|prev = Button(8,pull_up=True)  # --> Pin 24|\\
+\verb|halt = Button(5,pull_up=True)  # --> Pin 29|\\
+\verb|#reco = Button(6, pull_up=True) # Choose GPIO to fit your hardware|\\
+\verb|#play = Button(12,pull_up=True) # Choose GPIO to fit your hardware|
+%\end{verbatim}
+
+siehe auch Tabelle \ref{tab:gpio_rpi}
+%\comment{{\autor}s Variante}
+
+
+
+
+%bla
+%
+%
+%\cmdPi{\begin{scriptsize}sudo cp /home/pi/RPi-Jukebox-RFID/misc/sampleconfigs/phoniebox-idle-watchdog.service.sample\\ /etc/systemd/system/phoniebox-idle-watchdog.service\end{scriptsize}}
+%
+%bla
+
+
+
+
+
+
+%\begin{bclogo}[logo = \bclampe, noborder = true]{Hinweis}
+%Die in den folgenden Kommandos angegebenen Dateien wurden zwar für
+%\os{Raspbian Stretch} vorgesehen, aber auch dort kam schon
+%\software{systemd} zum Einsatz. Daher ist es unproblematisch, dass hier
+%die \os{Stretch}-Dateien für \os{Raspbian Buster} verwendet werden.
+%\textcolor{red}{Wichtig ist aber, dass in Abschnitt \ref{sect:apt-get}
+%auch die entsprechenden Pakete für \software{Python3} installiert
+%wurden!} 
+%\end{bclogo}
+%
+%
+%\cmdPi{\begin{scriptsize}sudo cp /home/pi/RPi-Jukebox-RFID/misc/sampleconfigs/phoniebox-rfid-reader.service.stretch-default.sample\\ /etc/systemd/system/phoniebox-rfid-reader.service\end{scriptsize}}\\
+%\cmdPi{\begin{scriptsize}sudo cp /home/pi/RPi-Jukebox-RFID/misc/sampleconfigs/phoniebox-startup-sound.service.stretch-default.sample\\ /etc/systemd/system/phoniebox-startup-sound.service\end{scriptsize}}\\
+%\cmdPi{\begin{scriptsize}sudo cp /home/pi/RPi-Jukebox-RFID/misc/sampleconfigs/phoniebox-gpio-buttons.service.stretch-default.sample\\ /etc/systemd/system/phoniebox-gpio-buttons.service\end{scriptsize}}\\
+%\cmdPi{\begin{scriptsize}sudo cp /home/pi/RPi-Jukebox-RFID/misc/sampleconfigs/gpio-buttons.py.sample\\ /home/pi/RPi-Jukebox-RFID/scripts/gpio-buttons.py\begin{scriptsize}}
+%
+%
+%\cmdPi{\begin{scriptsize}sudo cp /home/pi/RPi-Jukebox-RFID/misc/sampleconfigs/phoniebox-idle-watchdog.service.sample\\ /etc/systemd/system/phoniebox-idle-watchdog.service\end{scriptsize}}
+%
+%Neue Dienste bekannt geben:\\
+%\cmdPi{sudo systemctl daemon-reload}
+%
+%Dienste aktivieren:\\
+%\cmdPi{sudo systemctl enable phoniebox-idle-watchdog}\\
+%\cmdPi{sudo systemctl enable phoniebox-rfid-reader}\\
+%\cmdPi{sudo systemctl enable phoniebox-startup-sound}\\
+%\cmdPi{sudo systemctl enable phoniebox-gpio-buttons}\\
+%\stdout{Created symlink /etc/systemd/system/multi-user.target.wants/\textcolor{red}{<Name>}.service --> /etc/systemd/system/\textcolor{red}{<Name>}.service.}
+%
+%Dienste starten (anstelle eines Reboots):\\
+%\cmdPi{sudo systemctl start phoniebox-idle-watchdog}\\
+%\cmdPi{sudo systemctl start phoniebox-rfid-reader}\\
+%\cmdPi{sudo systemctl start phoniebox-startup-sound}\\
+%\cmdPi{sudo systemctl start phoniebox-gpio-buttons}
+%
+%Status der Dienste anzeigen:\\
+%\cmdPi{sudo systemctl status phoniebox-idle-watchdog}\\
+%\cmdPi{sudo systemctl status phoniebox-rfid-reader}\\
+%\cmdPi{sudo systemctl status phoniebox-startup-sound}\\
+%\cmdPi{sudo systemctl status phoniebox-gpio-buttons}
+%
+%
+%\cmdPi{sudo reboot}
+
+
