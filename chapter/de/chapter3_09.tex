@@ -1,152 +1,178 @@
 % chapter3_9.tex -- de (German)
-% auto start
-%\newpage
-\section{\software{systemd:} Autostart der \Bezeichnung-Software einrichten}
-\label{sect:systemd}
+% assigning RFID cards to audio files/folders
+\section{Zuordnung von Hörspielen zu {\Karte}n }
+\label{sect:assignment}
 
 \begin{bclogo}[logo = \bclampe, noborder = true]{Hinweis}
-Die in den folgenden Kommandos angegebenen Dateien wurden zwar für
-\os{Raspbian Stretch} vorgesehen, aber auch dort kam schon
-\software{systemd} zum Einsatz. Daher ist es unproblematisch, dass hier
-die \os{Stretch}-Dateien für \os{Raspbian Buster} verwendet werden.
-\textcolor{red}{Wichtig ist aber, dass in Abschnitt \ref{sect:apt-get}
-auch die entsprechenden Pakete für \software{Python3} installiert
-wurden!} 
+Die funktionalen Elemente der {\Bezeichnung} sind nun installiert. Jetzt
+ist es an der Zeit, einzelnen Hörspielen oder Musikstücken {\Karte}n
+zuzuordnen und einen \textit{Soundcheck} zu machen, um die grundlegende
+Funktionalität der Box zu überprüfen:
 \end{bclogo}
 
+\begin{figure}[!h]
+\centering
+\includegraphics[width=0.45\textwidth]{/software/helloween.jpg}
+\includegraphics[width=0.45\textwidth]{/software/metallica.jpg}
+\caption{Audiodaten (Musikalben) auf die {\Bezeichnung} kopieren}
+\end{figure}
 
-\cmdPi{\begin{scriptsize}sudo cp /home/pi/RPi-Jukebox-RFID/misc/sampleconfigs/phoniebox-rfid-reader.service.stretch-default.sample\\ /etc/systemd/system/phoniebox-rfid-reader.service\end{scriptsize}}\\
-\cmdPi{\begin{scriptsize}sudo cp /home/pi/RPi-Jukebox-RFID/misc/sampleconfigs/phoniebox-startup-sound.service.stretch-default.sample\\ /etc/systemd/system/phoniebox-startup-sound.service\end{scriptsize}}\\
-\cmdPi{\begin{scriptsize}sudo cp /home/pi/RPi-Jukebox-RFID/misc/sampleconfigs/phoniebox-gpio-buttons.service.stretch-default.sample\\ /etc/systemd/system/phoniebox-gpio-buttons.service\end{scriptsize}}\\
-\cmdPi{\begin{scriptsize}sudo cp /home/pi/RPi-Jukebox-RFID/misc/sampleconfigs/phoniebox-idle-watchdog.service.sample\\ /etc/systemd/system/phoniebox-idle-watchdog.service\end{scriptsize}}
+Zunächst werden \textit{rekursiv} zwei Unterverzeichnisse mit den
+Musikdateien zweier Musikalben vom PC in den Audioordner auf der 
+{\Bezeichnung} kopiert:\\
+\cmdPC{scp -r Helloween pi@phoniebox1:/home/pi/RPi-Jukebox-RFID/shared/audiofolders}\\
+\cmdPC{scp -r Metallica pi@phoniebox1:/home/pi/RPi-Jukebox-RFID/shared/audiofolders}
 
-Neue Dienste bekannt geben:\\
-\cmdPi{sudo systemctl daemon-reload}
+Kontrolle mit \cmd{ls -lR} auf der {\Bezeichnung}:\\
+\cmdPi{ls -lR /home/pi/RPi-Jukebox-RFID/shared/audiofolders}
+\begin{smaller}
+\begin{verbatim}
+total 26728
+drwxr-xr-x 2 pi pi           4096 May 17 15:50  Helloween
+drwxr-xr-x 2 pi pi           4096 May 17 15:56  Metallica
 
-Dienste aktivieren:\\
-\cmdPi{sudo systemctl enable phoniebox-idle-watchdog}\\
-\cmdPi{sudo systemctl enable phoniebox-rfid-reader}\\
-\cmdPi{sudo systemctl enable phoniebox-startup-sound}\\
-\cmdPi{sudo systemctl enable phoniebox-gpio-buttons}\\
-\stdout{Created symlink /etc/systemd/system/multi-user.target.wants/\textcolor{red}{<Name>}.service --> /etc/systemd/system/\textcolor{red}{<Name>}.service.}
+./Helloween:
+total 104140
+-rwxr-xr-x 1 pi pi 37314544 May 17 15:47 01_I_Want_Out.flac
+-rwxr-xr-x 1 pi pi 38112711 May 17 15:48 02_Dr._Stein.flac
+-rwxr-xr-x 1 pi pi 31203347 May 17 15:49 03_Future_World.flac
 
-Dienste starten (anstelle eines Reboots):\\
-\cmdPi{sudo systemctl start phoniebox-idle-watchdog}\\
-\cmdPi{sudo systemctl start phoniebox-rfid-reader}\\
-\cmdPi{sudo systemctl start phoniebox-startup-sound}\\
-\cmdPi{sudo systemctl start phoniebox-gpio-buttons}
+./Metallica:
+total 151828
+-rwxr-xr-x 1 pi pi 38978523 May 17 15:52 01_Enter_Sandman.flac
+-rwxr-xr-x 1 pi pi 41647915 May 17 15:54 02_Sad_But_True.flac
+-rwxr-xr-x 1 pi pi 29319722 May 17 15:54 03_Holier_Than_Thou.flac
+-rwxr-xr-x 1 pi pi 45518619 May 17 15:56 04_The_Unforgiven.flac
+\end{verbatim}
+\end{smaller}
 
-Status der Dienste anzeigen:\\
-\cmdPi{sudo systemctl status phoniebox-idle-watchdog}\\
-\cmdPi{sudo systemctl status phoniebox-rfid-reader}\\
-\cmdPi{sudo systemctl status phoniebox-startup-sound}\\
-\cmdPi{sudo systemctl status phoniebox-gpio-buttons}
+\subsection{{\Karte} manuell zuordnen}
+Um nun diesen beiden Alben zwei neue {\Karte}n zuzuordnen, sind folgende
+Schritte erforderlich:
+\begin{compactitem}
+\item{ID der neuen {\Karte} herausfinden}
+\item{Für jede ID die Shortcut-Datei nacheditieren.} 
+%\item{Playlist als \cmd{*.m3u}-Datei erstellen} # braucht's nicht!
+%%%%
+%\item{Für jede ID die Shortcut-Datei \filenam{/home/pi/RPi-Jukebox-RFID/shared/shortcuts/000???????} anlegen, in der der Name einer \cmd{*.m3u}-Datei eingetragen ist.} 
+%\item{Im Verzeichnis \filenam{/home/pi/RPi-Jukebox-RFID/playlists} die \cmd{*.m3u}-Datei mit dem oben angegebenen Namen anlegen}
+\end{compactitem}
 
+Zunächst wird eine neue {\Karte} über den {\reader} eingelesen. Dabei
+wird im Unterverzeichnis \filenam{/home/pi/RPi-Jukebox-RFID/shared/shortcuts}
+eine Datei angelegt, die den Namen der Karten-ID hat, \zB \cmd{0009563230}.
+Der Inhalt dieser Datei muss auf den Verzeichnisnamen des Albums oder
+Hörbuchs unter \filenam{/home/pi/RPi-Jukebox-RFID/shared/audiofolders}
+angepasst werden, \zB "`Helloween"'.\\
+\cmdPi{nano /home/pi/RPi-Jukebox-RFID/shared/shortcuts/0009563230}\\
+\stdout{Helloween}
 
-%pi@phoniebox1:~/RPi-Jukebox-RFID $ sudo systemctl status phoniebox-idle-watchdog
-%. phoniebox-idle-watchdog.service - Phoniebox Idle Watchdog Service
-%   Loaded: loaded (/etc/systemd/system/phoniebox-idle-watchdog.service; enabled; vendor preset: enabled)
-%   Active: inactive (dead) since Sat 2020-05-02 22:58:40 CEST; 2min 21s ago
-%  Process: 2654 ExecStart=/home/pi/RPi-Jukebox-RFID/scripts/idle-watchdog.sh (code=exited, status=0/SUCCESS)
-% Main PID: 2654 (code=exited, status=0/SUCCESS)
+%\subsection{ID einer neuen {\Karte} ermitteln}
+%Die ID einer {\Karte} wird beim Einlesen durch den {\reader} in der
+%Datei \filenam{/home/pi/RPi-Jukebox-RFID/settings/Latest\_RFID} abgelegt.
+%Nach erfolgtem Einlesen den Inhalt dieser Datei anzeigen:\\
+%\cmdPi{cat /home/pi/RPi-Jukebox-RFID/settings/Latest\_RFID}\\
+%\stdout{0009563230}
 %
-%May 02 22:57:40 phoniebox1 systemd[1]: Started Phoniebox Idle Watchdog Service.
-%May 02 22:57:40 phoniebox1 sudo[2656]:       pi : TTY=unknown ; PWD=/home/pi/RPi-Jukebox-RFID ; USER=root ; COMMAND=/usr/bin/atq
-%May 02 22:57:40 phoniebox1 sudo[2656]: pam_unix(sudo:session): session opened for user root by (uid=0)
-%May 02 22:57:40 phoniebox1 sudo[2656]: pam_unix(sudo:session): session closed for user root
-%May 02 22:58:40 phoniebox1 systemd[1]: phoniebox-idle-watchdog.service: Succeeded.
-%pi@phoniebox1:~/RPi-Jukebox-RFID $ sudo systemctl status phoniebox-rfid-reader
-%. phoniebox-rfid-reader.service - Phoniebox RFID-Reader Service
-%   Loaded: loaded (/etc/systemd/system/phoniebox-rfid-reader.service; enabled; vendor preset: enabled)
-%   Active: failed (Result: exit-code) since Sat 2020-05-02 22:57:54 CEST; 3min 21s ago
-%  Process: 2684 ExecStart=/home/pi/RPi-Jukebox-RFID/scripts/daemon_rfid_reader.py (code=exited, status=1/FAILURE)
-% Main PID: 2684 (code=exited, status=1/FAILURE)
+%\subsection{Shortcut-Datei für die soeben ermittelte ID anlegen}
+%Im Unterverzeichnis \filenam{/home/pi/RPi-Jukebox-RFID/shared/shortcuts}
+%wird eine Datei angelegt, deren Dateiname der ermittelten ID, \zB 
+%\cmd{0009563230} entspricht. In dieser Datei wird der Name des
+%Unterverzeichnisses des gewünschten Albums in\\
+%\filenam{/home/pi/RPi-Jukebox-RFID/shared/audiofolders} eingetragen, \zB
+%"`Helloween"'.\\
+%\cmdPi{nano /home/pi/RPi-Jukebox-RFID/shared/shortcuts/0009563230}\\
+%\stdout{Helloween}
 %
-%May 02 22:57:54 phoniebox1 systemd[1]: phoniebox-rfid-reader.service: Service RestartSec=100ms expired, scheduling restart.
-%May 02 22:57:54 phoniebox1 systemd[1]: phoniebox-rfid-reader.service: Scheduled restart job, restart counter is at 5.
-%May 02 22:57:54 phoniebox1 systemd[1]: Stopped Phoniebox RFID-Reader Service.
-%May 02 22:57:54 phoniebox1 systemd[1]: phoniebox-rfid-reader.service: Start request repeated too quickly.
-%May 02 22:57:54 phoniebox1 systemd[1]: phoniebox-rfid-reader.service: Failed with result 'exit-code'.
-%May 02 22:57:54 phoniebox1 systemd[1]: Failed to start Phoniebox RFID-Reader Service.
-%pi@phoniebox1:~/RPi-Jukebox-RFID $ sudo systemctl status phoniebox-startup-sound
-%. phoniebox-startup-sound.service - Phoniebox Startup Sound
-%   Loaded: loaded (/etc/systemd/system/phoniebox-startup-sound.service; enabled; vendor preset: enabled)
-%   Active: active (exited) since Sat 2020-05-02 22:57:59 CEST; 3min 29s ago
-%  Process: 2693 ExecStart=/usr/bin/mpg123 /home/pi/RPi-Jukebox-RFID/shared/startupsound.mp3 (code=exited, status=0/SUCCESS)
-% Main PID: 2693 (code=exited, status=0/SUCCESS)
-%
-%May 02 22:57:59 phoniebox1 systemd[1]: Starting Phoniebox Startup Sound...
-%May 02 22:57:59 phoniebox1 mpg123[2693]: High Performance MPEG 1.0/2.0/2.5 Audio Player for Layers 1, 2 and 3
-%May 02 22:57:59 phoniebox1 mpg123[2693]:         version 1.25.10; written and copyright by Michael Hipp and others
-%May 02 22:57:59 phoniebox1 mpg123[2693]:         free software (LGPL) without any warranty but with best wishes
-%May 02 22:57:59 phoniebox1 mpg123[2693]: [src/libmpg123/readers.c:1184] error: Cannot open file /home/pi/RPi-Jukebox-RFID/shared/startupsound.mp3: No such file
-%May 02 22:57:59 phoniebox1 mpg123[2693]: main: [src/mpg123.c:708] error: Cannot open /home/pi/RPi-Jukebox-RFID/shared/startupsound.mp3: File access error. (cod
-%May 02 22:57:59 phoniebox1 systemd[1]: Started Phoniebox Startup Sound.
-%...skipping...
-%. phoniebox-startup-sound.service - Phoniebox Startup Sound
-%   Loaded: loaded (/etc/systemd/system/phoniebox-startup-sound.service; enabled; vendor preset: enabled)
-%   Active: active (exited) since Sat 2020-05-02 22:57:59 CEST; 3min 29s ago
-%  Process: 2693 ExecStart=/usr/bin/mpg123 /home/pi/RPi-Jukebox-RFID/shared/startupsound.mp3 (code=exited, status=0/SUCCESS)
-% Main PID: 2693 (code=exited, status=0/SUCCESS)
-%
-%May 02 22:57:59 phoniebox1 systemd[1]: Starting Phoniebox Startup Sound...
-%May 02 22:57:59 phoniebox1 mpg123[2693]: High Performance MPEG 1.0/2.0/2.5 Audio Player for Layers 1, 2 and 3
-%May 02 22:57:59 phoniebox1 mpg123[2693]:         version 1.25.10; written and copyright by Michael Hipp and others
-%May 02 22:57:59 phoniebox1 mpg123[2693]:         free software (LGPL) without any warranty but with best wishes
-%May 02 22:57:59 phoniebox1 mpg123[2693]: [src/libmpg123/readers.c:1184] error: Cannot open file /home/pi/RPi-Jukebox-RFID/shared/startupsound.mp3: No such file
-%May 02 22:57:59 phoniebox1 mpg123[2693]: main: [src/mpg123.c:708] error: Cannot open /home/pi/RPi-Jukebox-RFID/shared/startupsound.mp3: File access error. (cod
-%May 02 22:57:59 phoniebox1 systemd[1]: Started Phoniebox Startup Sound.
-%~
-%~
-%~
-%~
-%~
-%~
-%~
-%~
-%~
-%~
-%~
-%~
-%~
-%~
-%~
-%~
-%~
-%~
-%~
-%~
-%~
-%~
-%~
-%~
-%~
-%pi@phoniebox1:~/RPi-Jukebox-RFID $ sudo systemctl status phoniebox-gpio-buttons
-%. phoniebox-gpio-buttons.service - Phoniebox GPIO Buttons Service
-%   Loaded: loaded (/etc/systemd/system/phoniebox-gpio-buttons.service; enabled; vendor preset: enabled)
-%   Active: failed (Result: exit-code) since Sat 2020-05-02 22:58:08 CEST; 3min 51s ago
-%  Process: 2711 ExecStart=/home/pi/RPi-Jukebox-RFID/scripts/gpio-buttons.py (code=exited, status=203/EXEC)
-% Main PID: 2711 (code=exited, status=203/EXEC)
-%
-%May 02 22:58:08 phoniebox1 systemd[1]: phoniebox-gpio-buttons.service: Service RestartSec=100ms expired, scheduling restart.
-%May 02 22:58:08 phoniebox1 systemd[1]: phoniebox-gpio-buttons.service: Scheduled restart job, restart counter is at 5.
-%May 02 22:58:08 phoniebox1 systemd[1]: Stopped Phoniebox GPIO Buttons Service.
-%May 02 22:58:08 phoniebox1 systemd[1]: phoniebox-gpio-buttons.service: Start request repeated too quickly.
-%May 02 22:58:08 phoniebox1 systemd[1]: phoniebox-gpio-buttons.service: Failed with result 'exit-code'.
-%May 02 22:58:08 phoniebox1 systemd[1]: Failed to start Phoniebox GPIO Buttons Service.
-%pi@phoniebox1:~/RPi-Jukebox-RFID $ 
-%
+%\subsection{Playlist für dieses Album als \cmd{*.m3u}-Datei erstellen}
+%Die Playlist, die bei Auflegen dieser Karte abgespielt werden soll,
+%muss im Verzeichnis\\ \filenam{/home/pi/RPi-Jukebox-RFID/playlists} als
+%\cmd{*.m3u}-Datei erstellt werden. Dabei handelt es sich einfachsten
+%Fall um eine Textdatei, die in jeder Zeile eine abzuspielende Audiodatei
+%enthält, siehe \url{https://de.wikipedia.org/wiki/M3U}:\\
+%\cmdPi{nano /home/pi/RPi-Jukebox-RFID/playlists/Helloween.m3u}\\
+%\stdout{/home/pi/RPi-Jukebox-RFID/shared/audiofolders/Helloween/01\_I\_Want\_Out.flac\\
+%        /home/pi/RPi-Jukebox-RFID/shared/audiofolders/Helloween/02\_Dr.\_Stein.flac\\
+%        /home/pi/RPi-Jukebox-RFID/shared/audiofolders/Helloween/03\_Future\_World.flac
+%       }
 
+Nach erneutem Auflegen der {\Karte} mit der ID \cmd{0009563230} werden
+%die in der Playlist hinterlegten Musiktitel des Albums \textit{Helloween
+%-- The Best, The Rest, The Rare} abgespielt.
+die im Verzeichnis \filenam{/home/pi/RPi-Jukebox-RFID/shared/audiofolders/Helloween}
+abgelegten Audiodateien abgespielt.
 
+%\begin{bclogo}[logo = \bclampe, noborder = true]{Hinweis}
+%Wichtig ist bei diesem Vorgehen, dass sowohl der Dateiname der
+%Playlist als auch das Albumsverzeichnis genau der Bezeichnung aus der
+%Shortcut-Datei entsprechen muss, hier also "`Helloween"'!
+%\end{bclogo}
 
+\subsection{{\Karte} über die Webanwendung registrieren}
+Alternativ kann eine {\Karte} auch mit Hilfe des Webservices zugeordnet
+werden. Das Vorgehen wird in der folgenden Bilderstrecke dargestellt:
 
+\begin{figure}[!h]
+\centering
+\includegraphics[width=0.49\textwidth]{/software/webservice-metallica01.png}
+\includegraphics[width=0.49\textwidth]{/software/webservice-metallica02.png}
+\includegraphics[width=0.49\textwidth]{/software/webservice-metallica03.png}
+\includegraphics[width=0.49\textwidth]{/software/webservice-metallica04.png}
+\caption{{\Karte} über Webservice registrieren}
+\end{figure}
 
+Am PC wird über einen Internetbrowser (Firefox) eine Verbindung zur
+{\Bezeichnung} hergestellt, z.B. durch Eingabe der IP-Adresse (hier
+192.168.178.154). Durch Klick auf \menuitem{Settings} in der oberen
+Menüleiste erscheint das Bild links oben. Hier muss auf die Schaltfläche
+\button{Register new card ID} geklickt werden. Nun erscheint das Bild
+rechts oben. Jetzt die neue {\Karte} über den {\reader} einlesen. Im
+dazugehörigen Textfeld wird die ID aktualisiert (hier \cmd{0009593627}).
 
+In der Zeile \menuitem{Audio Folder} werden im Auswahlfeld (ComboBox)
+alle Unterverzeichnisse von \filenam{/home/pi/RPi-Jukebox-RFID/shared/audiofolders}
+angezeigt. Hier den gewünschten Ordner "`Metallica"' auswählen. Zum
+Speichern der gewählten Einstellungen im Browser nach unten scrollen
+und die grüne Schaltfläche \button{Submit} anklicken.
 
+Eine Überprüfung im ssh-Terminal zeigt die Zuordnung der neuen {\Karte}
+zum Album "`Metallica"':\\
+\cmdPi{cat ~/RPi-Jukebox-RFID/shared/shortcuts/0009593627}\\
+\stdout{Metallica}
 
+Auch hier bewirkt das erneute Auflegen dieser Karte den Start der
+Wiedergabe der Audiodateien.
 
-\cmdPi{sudo reboot}
+\subsection{Testen der Taster an den GPIO-Pins}
+In der Konfiguration von {\autor}s {\Bezeichnung} sind in der Datei\\
+\filenam{/home/pi/RPi-Jukebox-RFID/scripts/gpio-buttons.py} an folgenden
+GPIOs Taster definiert, siehe auch Kapitel \ref{sect:prototypingboard}
+sowie Tabelle \ref{tab:gpio_rpi}:
 
-TODO!\todo{Fortsetzung folgt\dots}
+\begin{table}[!h]
+\centering
+\renewcommand{\arraystretch}{1.25}
+\begin{tabular}{|p{0.10\textwidth}|p{0.10\textwidth}|p{0.15\textwidth}|p{0.30\textwidth}|p{0.20\textwidth}|}
+\hline
+\textbf{GPIO}	&	\textbf{Pin}	&	\textbf{Funktion}	&	\textbf{Beschreibung}	&	\textbf{Anmerkung}\\
+\hline
+\texttt{13}		&	\texttt{33}		&	\textit{vol0}		&	stumm schalten			&	(nicht verwendet)\\
+\hline
+\texttt{12}		&	\texttt{32}		&	\textit{volU}		&	Lautstärke erhöhen		&\\
+\hline
+\texttt{6}		&	\texttt{31}		&	\textit{volD}		&	Lautstärke verringern	&\\
+\hline
+\texttt{7}		&	\texttt{26}		&	\textit{next}		&	nächster Titel			&\\
+\hline
+\texttt{8}		&	\texttt{24}		&	\textit{prev}		&	vorheriger Titel		&\\
+\hline
+\texttt{5}		&	\texttt{29}		&	\textit{halt}		&	Play/Pause				&\\
+\hline
+\end{tabular}
+\vspace{0.5cm}
+\caption{Taster an der GPIO-Leiste bei {\autor}s \Bezeichnung}
+\label{tab:gpio_buttons}
+\end{table}
 
-
+Die Taster können bei dieser Gelegenheit auch gleich auf Funktion
+überprüft werden \smiley{smile}

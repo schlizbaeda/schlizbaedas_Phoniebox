@@ -1,0 +1,52 @@
+%    % chapter3_10.tex -- de (German)
+%    % auto start
+%    \section{\software{systemd:} Autostart der \Bezeichnung-Software einrichten}
+%    \label{sect:systemd}
+%    Quelle:\\
+%    \url{https://github.com/MiczFlor/RPi-Jukebox-RFID/wiki/CONFIGURE-stretch#auto-start-the-phoniebox}
+%    
+%    \begin{bclogo}[logo = \bclampe, noborder = true]{Hinweis}
+%    Die in den folgenden Kommandos angegebenen Dateien wurden zwar für
+%    \os{Raspbian Stretch} vorgesehen, aber auch dort kam schon
+%    \software{systemd} zum Einsatz. Daher ist es unproblematisch, dass hier
+%    die \os{Stretch}-Dateien für \os{Raspbian Buster} verwendet werden.
+%    \textcolor{red}{Wichtig ist aber, dass in Abschnitt \ref{sect:apt-get}
+%    auch die entsprechenden Pakete für \software{Python3} installiert
+%    wurden!} 
+%    \end{bclogo}
+%    
+%    
+%    \cmdPi{\begin{scriptsize}sudo cp /home/pi/RPi-Jukebox-RFID/misc/sampleconfigs/phoniebox-rfid-reader.service.stretch-default.sample\\ /etc/systemd/system/phoniebox-rfid-reader.service\end{scriptsize}}\\
+%    \cmdPi{\begin{scriptsize}sudo cp /home/pi/RPi-Jukebox-RFID/misc/sampleconfigs/phoniebox-startup-sound.service.stretch-default.sample\\ /etc/systemd/system/phoniebox-startup-sound.service\end{scriptsize}}\\
+%    \cmdPi{\begin{scriptsize}sudo cp /home/pi/RPi-Jukebox-RFID/misc/sampleconfigs/phoniebox-gpio-buttons.service.stretch-default.sample\\ /etc/systemd/system/phoniebox-gpio-buttons.service\end{scriptsize}}\\
+%    \cmdPi{\begin{scriptsize}sudo cp /home/pi/RPi-Jukebox-RFID/misc/sampleconfigs/phoniebox-idle-watchdog.service.sample\\ /etc/systemd/system/phoniebox-idle-watchdog.service\end{scriptsize}}
+%    
+%    Neue Dienste bekannt geben:\\
+%    \cmdPi{sudo systemctl daemon-reload}
+%    
+%    Dienste aktivieren:\\
+%    \cmdPi{sudo systemctl enable phoniebox-idle-watchdog}\\
+%    \cmdPi{sudo systemctl enable phoniebox-rfid-reader}\\
+%    \cmdPi{sudo systemctl enable phoniebox-startup-sound}\\
+%    \cmdPi{sudo systemctl enable phoniebox-gpio-buttons}\\
+%    \stdout{Created symlink /etc/systemd/system/multi-user.target.wants/\textcolor{red}{<Name>}.service --> /etc/systemd/system/\textcolor{red}{<Name>}.service.}
+%    
+%    Dienste starten (anstelle eines Reboots):\\
+%    \cmdPi{sudo systemctl start phoniebox-idle-watchdog}\\
+%    \cmdPi{sudo systemctl start phoniebox-rfid-reader}\\
+%    \cmdPi{sudo systemctl start phoniebox-startup-sound}\\
+%    \cmdPi{sudo systemctl start phoniebox-gpio-buttons}
+%    
+%    Status der Dienste anzeigen:\\
+%    \cmdPi{sudo systemctl status phoniebox-idle-watchdog}\\
+%    \cmdPi{sudo systemctl status phoniebox-rfid-reader}\\
+%    \cmdPi{sudo systemctl status phoniebox-startup-sound}\\
+%    \cmdPi{sudo systemctl status phoniebox-gpio-buttons}
+%    
+%    
+%    \cmdPi{sudo reboot}
+%    
+%    TODO!\todo{Fortsetzung folgt\dots}
+%    
+%    
+%    
