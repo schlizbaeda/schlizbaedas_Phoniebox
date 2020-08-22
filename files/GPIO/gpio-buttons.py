@@ -19,6 +19,17 @@ from subprocess import check_call
 # I have not yet had the time to test is, so I placed it in the misc folder.
 # If anybody has ideas or tests or experience regarding this solution, please create pull requests or contact me.
 
+
+# added by schlizbäda at Jun 07th 2020: helper class for providing global variables and constants
+class cls_seekbuttons(object):
+    def __init__(self):
+        self.gl_button_seekduration = 0
+        self.GL_SEEKSLOW = 4
+        self.GL_SEEKFAST = 16
+
+
+
+
 def def_shutdown():
     check_call("./scripts/playout_controls.sh -c=shutdown", shell=True)
 
@@ -31,11 +42,47 @@ def def_volD():
 def def_vol0():
     check_call("./scripts/playout_controls.sh -c=mute", shell=True)
 
+
+
+
+# added by schlizbäda at Jun 7th 2020 for seeking inside audio tracks (rewind, fast forward)
+def def_reset_dur():
+    cls_seekbuttons.gl_button_seekduration = 0
+    cls_seekbuttons.GL_SEEKSLOW = 4
+    cls_seekbuttons.GL_SEEKFAST = 16
+
+def def_fast_forward():
+    cls_seekbuttons.gl_button_seekduration += 1
+    if cls_seekbuttons.gl_button_seekduration >= cls_seekbuttons.GL_SEEKSLOW:
+        if cls_seekbuttons.gl_button_seekduration >= cls_seekbuttons.GL_SEEKFAST:
+            seekwidth = 15
+        else:
+            seekwidth = 5
+        check_call(f"./scripts/playout_controls.sh -c=playerseek -v=+{seekwidth}", shell=True)
+    #check_call("./scripts/playout_controls.sh -c=playernext", shell=True)
+
+def def_rewind():
+    cls_seekbuttons.gl_button_seekduration += 1
+    if cls_seekbuttons.gl_button_seekduration >= cls_seekbuttons.GL_SEEKSLOW:
+        if cls_seekbuttons.gl_button_seekduration >= cls_seekbuttons.GL_SEEKFAST:
+            seekwidth = 15
+        else:
+            seekwidth = 5
+        check_call(f"./scripts/playout_controls.sh -c=playerseek -v=-{seekwidth}", shell=True)
+
+# adjusted by schlizbäda at Jun 7th 2020 for distingishing skip or seek
 def def_next():
-    check_call("./scripts/playout_controls.sh -c=playernext", shell=True)
+    if cls_seekbuttons.gl_button_seekduration < cls_seekbuttons.GL_SEEKSLOW:
+        check_call("./scripts/playout_controls.sh -c=playernext", shell=True)
+    cls_seekbuttons.gl_button_seekduration = 0
 
 def def_prev():
-    check_call("./scripts/playout_controls.sh -c=playerprev", shell=True)
+    if cls_seekbuttons.gl_button_seekduration < cls_seekbuttons.GL_SEEKSLOW:
+        check_call("./scripts/playout_controls.sh -c=playerprev", shell=True)
+    cls_seekbuttons.gl_button_seekduration = 0
+
+
+
 
 def def_halt():
     check_call("./scripts/playout_controls.sh -c=playerpause", shell=True)
@@ -61,8 +108,8 @@ def def_recordplaylatest():
 vol0 = Button(13,pull_up=True) # --> Pin 33
 volU = Button(12,pull_up=True,hold_time=0.3,hold_repeat=True) # --> Pin 32
 volD = Button(6,pull_up=True,hold_time=0.3,hold_repeat=True) # --> Pin 31
-next = Button(7,pull_up=True) # --> Pin 26
-prev = Button(8,pull_up=True) # --> Pin 24
+next = Button(7,pull_up=True,hold_time=0.3,hold_repeat=True) # --> Pin 26
+prev = Button(8,pull_up=True,hold_time=0.3,hold_repeat=True) # --> Pin 24
 halt = Button(5,pull_up=True) # --> Pin 29
 #reco = Button(6, pull_up=True) # Choose GPIO to fit your hardware
 #play = Button(12,pull_up=True) # Choose GPIO to fit your hardware
@@ -75,8 +122,15 @@ volU.when_held = def_volU
 volD.when_pressed = def_volD
 #When the Volume Down button was held for more than 0.3 seconds every 0.3 seconds he will lower t$
 volD.when_held = def_volD
-next.when_pressed = def_next
-prev.when_pressed = def_prev
+
+# event calls adjusted by schlizbäda at Jun 7th 2020:
+next.when_pressed = def_reset_dur # added by schlizbäda at Jun 7th 2020
+next.when_held = def_fast_forward # added by schlizbäda at Jun 7th 2020
+next.when_released = def_next     # adjusted by schlizbäda at Jun 7th 2020
+prev.when_pressed = def_reset_dur # added by schlizbäda at Jun 7th 2020
+prev.when_held = def_rewind       # added by schlizbäda at Jun 7th 2020
+prev.when_released = def_prev     # adjusted by schlizbäda at Jun 7th 2020
+
 halt.when_pressed = def_halt
 #reco.when_pressed = def_recordstart
 #reco.when_released = def_recordstop
