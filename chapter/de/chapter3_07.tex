@@ -14,9 +14,9 @@ Die folgenden Kommandos legen im Verzeichnis
 \filenam{/home/pi/RPi-Jukebox-RFID/settings} kleine Textdateien an, die
 das Verhalten der Taster \textit{volume up} und \textit{volume down}
 konfigurieren. Ferner kann die maximale Lautstärke begenzt werden:\\
-\cmdPi{echo "Master"{} > /home/pi/RPi-Jukebox-RFID/settings/Audio\_iFace\_Name}\\
-\cmdPi{echo "3"{} > /home/pi/RPi-Jukebox-RFID/settings/Audio\_Volume\_Change\_Step}\\
-\cmdPi{echo "100"{} > /home/pi/RPi-Jukebox-RFID/settings/Max\_Volume\_Limit}
+\cmdPi{echo \dq Master\dq\ > /home/pi/RPi-Jukebox-RFID/settings/Audio\_iFace\_Name}\\
+\cmdPi{echo \dq 3\dq\ > /home/pi/RPi-Jukebox-RFID/settings/Audio\_Volume\_Change\_Step}\\
+\cmdPi{echo \dq 100\dq\ > /home/pi/RPi-Jukebox-RFID/settings/Max\_Volume\_Limit}
 
 MP3-Dateien für Startup und Shutdown kopieren:\\
 \cmdPi{\begin{scriptsize}cp /home/pi/RPi-Jukebox-RFID/misc/sampleconfigs/startupsound.mp3.sample\\ /home/pi/RPi-Jukebox-RFID/shared/startupsound.mp3\end{scriptsize}}\\
@@ -28,9 +28,53 @@ der Nichtverwendung automatisch abzuschalten, um die Akkulaufzeit zu
 verlängern. Der angegebene Wert ist inaktive Zeit in Minuten
 \textit{ab dem Beenden der \software{mpd}-Playlist}, bevor sich die Box
 automatisch abschaltet. Der Wert 0 deaktiviert diese Funktion.\\ 
-\cmdPi{echo "0"{} > /home/pi/RPi-Jukebox-RFID/settings/Idle\_Time\_Before\_Shutdown}
+\cmdPi{echo \dq 0\dq\ > /home/pi/RPi-Jukebox-RFID/settings/Idle\_Time\_Before\_Shutdown}
 
 Ein automatisches Abschalten der {\Bezeichnung} nach 15 Minuten
 Nichtbenutzung erreicht man alternativ durch:\\
-\cmdPi{echo "15"{} > /home/pi/RPi-Jukebox-RFID/settings/Idle\_Time\_Before\_Shutdown}%\comment{Alternative}
+\cmdPi{echo \dq 15\dq\ > /home/pi/RPi-Jukebox-RFID/settings/Idle\_Time\_Before\_Shutdown}%\comment{Alternative}
 
+\subsection{Was soll beim wiederholten Auflegen einer {\Karte} passieren?}
+Quelle:\\
+\url{https://github.com/MiczFlor/RPi-Jukebox-RFID/wiki/MANUAL#second-swipe}
+
+In der Datei \filenam{/home/pi/RPi-Jukebox-RFID/settings/Second\_Swipe}
+wird festgelegt, was beim wiederholten Auflegen derselben {\Karte}
+passieren soll. Dazu wird in diese Datei das entsprechende Schlüsselwort
+aus folgender Liste eingetragen:
+
+\begin{table}[h]
+\centering
+\renewcommand{\arraystretch}{1.25}
+\begin{tabular}{|p{0.15\textwidth}|p{0.80\textwidth}|}
+\hline
+\textbf{Schlüsselwort}	&	\textbf{Funktion}\\
+\hline
+\texttt{RESTART}		&	Neustart der aktiven Playlist von Anfang an\\
+\hline
+\texttt{PAUSE}			&	Umschalten zwischen \textit{Play/Pause}\\
+\hline
+\texttt{SKIPNEXT}		&	Zum nächsten Titel aus der Playlist springen\\
+\hline
+\texttt{NOAUDIOPLAY}	&	Keine Beeinflussung der Audiowiedergabe\\
+\hline
+\end{tabular}
+\vspace{0.5cm}
+\caption{Verhalten bei wiederholtem Auflegen derselben \Karte}
+\label{tab:second_swipe}
+\end{table}
+
+Bei meiner Box habe ich mich für den Eintrag \texttt{PAUSE}
+entschieden.\\
+\cmdPi{nano /home/pi/RPi-Jukebox-RFID/settings/Second\_Swipe}\\
+\stdout{PAUSE}
+
+\begin{bclogo}[logo = \bclampe, noborder = true]{Hinweis}
+In der Webapp ist die Einstellung sicherer...
+\end{bclogo}
+
+\begin{figure}[h]
+\centering
+\includegraphics[width=0.90\textwidth]{/software/Second_Swipe.png}
+\caption{Einstellung des Verhaltens bei wiederholtem Auflegen derselben {\Karte} über die WebApp}
+\end{figure}

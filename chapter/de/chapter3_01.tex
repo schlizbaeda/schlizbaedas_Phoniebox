@@ -16,7 +16,7 @@ Homepage der {\foundation}
 (\url{https://www.raspberrypi.org/downloads/raspbian/}, ca. 450MiB)
 heruntergeladen und entpackt (1,8GiB). Das entpackte Image wird mit
 einem dafür vorgesehenen Programm wie \software{win32diskimager} oder
-am Linux-PC mit dem systemeigenen Kommando \cmd{dd} auf die SD-Karte
+am GNU/Linux-PC mit dem systemeigenen Kommando \cmd{dd} auf die SD-Karte
 \textit{geflasht}, um das Image 1:1 zu übertragen.
 \begin{bclogo}[arrondi = 0.2, logo = \bcinfo, ombre = true, epOmbre = 0.25, couleurOmbre = black!30,blur]{Achtung}
 Es reicht nicht, die Imagedatei einfach auf eine bereits formatierte
@@ -97,9 +97,9 @@ Hostnamen mit dem (hoffentlich) geänderten Passwort erfolgen:\\
 Da die {\Bezeichnung} als tragbares Gerät für's Kinderzimmer konzipiert
 ist, sollte ein WLAN-Zu\-gang eingerichtet werden, um als Eltern später
 \zB per Laptop oder Smartphone jederzeit einen \textit{bequemen}
-Zugriff auf die Box zu haben. Wie häufig unter \os{Linux} gibt es auch
-für die WLAN-Konfiguration mehrere zielführende Wege, wie sie \zB im
-Elek\-tro\-nik-Kom\-pen\-dium unter
+Zugriff auf die Box zu haben. Wie häufig unter \os{GNU/Linux} gibt es
+auch für die WLAN-Konfiguration mehrere zielführende Wege, wie sie \zB
+im Elek\-tro\-nik-Kom\-pen\-dium unter
 \url{https://www.elektronik-kompendium.de/sites/raspberry-pi/1912221.htm}
 beschrieben werden. Für {\autor}s {\Bezeichnung} wird die dort
 beschriebene "`Variante 2"' mittels \software{wpa\_supplicant}
@@ -118,8 +118,8 @@ folgendem Schema eingefügt werden. Dazu wird der auch über
         country=DE\\
         \\
         network=\{ \# Erweiterungen von \autor\\
-        \textcolor{white}{\ \ \ \ }ssid="{<wlan-name>}" \ \# Klartext-Bezeichnung des Netzwerkes\\
-        \textcolor{white}{\ \ \ \ }psk="{<passphrase>}" \ \# Passwort für WLAN-Zugriff\\
+        \textcolor{white}{\ \ \ \ }ssid=\dq{<wlan-name>}\dq\ \# Klartext-Bezeichnung des Netzwerkes\\
+        \textcolor{white}{\ \ \ \ }psk=\dq{<passphrase>}\dq\ \# Passwort für WLAN-Zugriff\\
         \textcolor{white}{\ \ \ \ }key\_mgmt=WPA-PSK\\
         \}
        }

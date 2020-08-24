@@ -1,319 +1,250 @@
 % chapter3_04.tex -- de (German)
-% manual installation of the Phoniebox software
+% configuration of mpd
 \newpage
-\section{Manuelle Installation der \Bezeichnung-Software}
-\label{sect:phoniebox_onelineinstaller}
+\section{\software{Music Player Daemon (mpd)} einrichten}
+\label{sect:mpd}
+
+Der \software{Music Player Daemon (mpd)} ist eine Server-Anwendung zum
+Abspielen von Musikdateien in den gängigen Audiocodecs wie mp3, Ogg
+Vorbis, FLAC, AAC, Mod oder WAV. Clientsoftware kann den \software{mpd}
+über dessen Protokoll sowohl lokal als auch über das Netzwerk steuern.
+Damit ist er ideal für die Audiowiedergabe auf der {\Bezeichnung}
+geeignet.\\
+Ein relativer Sprung innerhalb der gesamten Playlist für einen schnellen
+Vor- und Rücklauf kann über den \software{mpd}-Standardclient
+\software{mpc} mit dem Kommando \cmd{mpc seekthrough <sec>} abgesetzt
+werden. Ein Vorlauf wird über positive Werte \textit{mit führendem
+Pluszeichen} abgesetzt, ein Rücklauf mit negativen Werten.
 
 \begin{bclogo}[logo = \bclampe, noborder = true]{Hinweis}
-Eigentlich sollte die Installation mit Hilfe des sogenannten
-\software{one line installers} funktionieren. Mit etwas Glück läuft die
-Installation problemlos durch, weil alle gemeldeten Fehler durch die
-Projekt-Maintainer ausgemerzt wurden. Insbesondere Neulinge sollten
-zuerst den \software{one line installer} ausprobieren, bevor sie sich an
-den folgenden Einzelkommandos austoben \smiley{wink}\\
-\begin{smaller}
-\url{https://github.com/MiczFlor/RPi-Jukebox-RFID/wiki/INSTALL-stretch#one-line-install-command}
-\end{smaller}
-Bei Erfolg kann dieses Kapitel ggf. komplett übersprungen werden.
-\smiley{smile}
+Nur leider ist der mit \cmd{apt-get install} aus der
+Rasp\-bian-Dis\-tri\-bu\-tion installierte \software{mpd} fehlerhaft:
+Negative Sprünge für den Rücklauf werden nicht ausgeführt!
+\smiley{nosmile}
 \end{bclogo}
 
-Beim {\autor} lief es natürlich anders und er führte dann unter 
-\os{Raspbian Buster Lite} Anfang Januar 2020 die Installation der
-\Bezeichnung-Soft\-ware manuell durch. Dabei traten diverse Probleme
-auf, die bei den einzelnen Schritten beschrieben werden. Es kann
-natürlich jederzeit sein, dass aufgrund von Aktualisierungen im
-github-Re\-po\-si\-to\-ry sowohl der \software{one line installer} als
-auch die Einzelkommandos wieder funktionieren\dots
-
-Dieses Kapitel orientiert sich dabei an der Installationsanleitung auf
-github ab dem Abschnitt \textit{install required packages and the
-Phoniebox code}:\\
+Dieses Problem wurde im \forum bereits diskutiert:\\
 \begin{scriptsize}
-\url{https://github.com/MiczFlor/RPi-Jukebox-RFID/wiki/INSTALL-stretch#install-required-packages-and-the-phoniebox-code}
+\url{https://forum-raspberrypi.de/forum/thread/45381-schneller-vor-ruecklauf-durch-when-held-auf-next-prev-buttons-buttons-beim-strea/?postID=435383#post435383}
 \end{scriptsize}
 
+Letztendlich kann der Fehler behoben werden, indem der Quellcode von
+der Projektseite \url{https://www.musicpd.org/} heruntergeladen und auf
+dem {\RPi} kompiliert wird. Danach muss der \software{mpd} richtig in
+\software{systemd} eingebunden werden, so dass er beim Booten von
+\os{Raspbian} gestartet wird.
 
-\subsection{benötigte Programmpakete und -bibliotheken installieren}
-\label{sect:apt-get}
-Für den Betrieb der \Bezeichnung-Soft\-ware sind etliche Programmpakete
-erforderlich, die über \cmd{apt-get} installiert werden. Vor der
-Installation empfiehlt es sich, zunächst das Kommandopaar\\
-\cmdPi{sudo apt-get update \&\& sudo apt-get upgrade}\\
-abzusetzen, da sich gerade bei \os{Raspbian} in den Repositorys ständig
-viel ändert!
+\subsection{Standardpaket des \software{mpd} aus \os{Raspbian} installieren}
+\label{sect:apt-get_mpd}
+Zunächst wird der \software{mpd} direkt aus der Distribution
+installiert:\\
+\cmdPi{sudo apt install mpd mpc}
+\comment{inklusive dem Client \software{mpc}}\\
+Damit wird der \software{mpd} inklusive der erforderlichen 
+Konfigurationsdateien installiert.
 
-\cmdPi{sudo apt-get install apt-transport-https}\\
-\cmdPi{sudo apt-get install samba samba-common-bin}
-\comment{siehe Abfrage aus Abbildung \ref{fig:apt-get_samba}}\\
-\cmdPi{sudo apt-get install python-dev python-pip}\\
-\cmdPi{sudo apt-get install \textcolor{red}{python3-dev python3-pip}}
-%\comment{Python3 kann hier auf keinen Fall schaden!}\\
-\comment{Python3 ist hier kein Fehler!}\\
-\cmdPi{sudo apt-get install gcc raspberrypi-kernel-headers lighttpd}\\
-\cmdPi{sudo apt-get install php7.3-common php7.3-cgi php7.3 php7.3-fpm}\\
-\cmdPi{sudo apt-get install at mpd mpc mpg123}\\
-\cmdPi{sudo apt-get install git ffmpeg python-mutagen}\\
-\cmdPi{sudo apt-get install \textcolor{red}{python3-mutagen}}
-\comment{Python3 schadet auch hier auf keinen Fall!}
+Standardmäßig wird der \software{mpd} im Verzeichnis \filenam{/usr/bin}
+installiert. Die Programmdatei wird aussagekräftig umbenannt und ein
+symbolischer Link namens \filenam{mpd} darauf erstellt:\\
+\cmdPi{mpd --version | head} \comment{Version ermitteln}\\
+\stdout{Music Player Daemon \textcolor{red}{0.21.5} (0.21.5)\\ \vdots}
+
+\cmdPi{cd /usr/bin}\\
+\cmdPi{sudo mv mpd mpd\_0.21.5\_raspbian}\\
+\cmdPi{sudo ln -s /usr/bin/mpd\_0.21.5\_raspbian mpd}
 
 \begin{bclogo}[logo = \bclampe, noborder = true]{Hinweis}
-In Kapitel \ref{sect:systemd} hat mich dann auch das Fehlen von Python3
-eingeholt, weil in der Originalanleitung in Abschnitt \ref{sect:evdev}
-nur die Python2-Version installiert wurde\dots \smiley{sarcastic}
+Es ist natürlich möglich, dass der \textit{seek}-Fehler im
+\software{mpd} eines Tages behoben wird. Dann ist die Kompilierung nicht
+mehr erforderlich und es geht in Abschnitt \ref{sect:mpd-config}
+weiter.\\
+Ebenso kann man den folgenden zeitaufwändigen und für den Anfänger
+durchaus lästigen Teil zunächst überspringen, um die {\Bezeichnung} an
+sich einigermaßen zügig zum Laufen zu bringen. Die Kompilierung des 
+\software{mpd} kann dann bei Bedarf immer noch nachgeholt werden.
 \end{bclogo}
+
+
+\subsection{Herunterladen und Kompilieren des \software{mpd}}
+Auf der Homepage des \software{mpd}-Projektes ist die aktuell
+veröffentlichte Programmversion ("`stable"') direkt auf der Hauptseite
+unter \url{https://www.musicpd.org/} angegeben, siehe Abbildung
+\ref{fig:www-musicpd-org}.
 
 \begin{figure}[h]
 \centering
-\includegraphics[width=0.88\textwidth, angle=0]{software/apt-get_samba.png}
-\caption{Abfrage bei der Installation von \software{Samba} mit \cmd{apt-get}}
-\label{fig:apt-get_samba}
+\includegraphics[width=0.85\textwidth]{software/musicpd.png}
+\caption{Homepage des \software{mpd}-Projektes mit Versionsangabe (0.21.25)}
+\label{fig:www-musicpd-org}
 \end{figure}
 
-Bei der Installation von \software{Samba} erscheint die Abfrage aus
-Abbildung \ref{fig:apt-get_samba}, die wie abgebildet mit \cmd{Yes}
-beantwortet wird.
-        
+Diese Versionsnummer (in diesem Beispiel \textcolor{red}{0.21.25}) ist
+wichtig für den Download des Quellcodes:\\
+\cmdPi{cd /home/pi}\comment{Download im Home-Verzeichnis durchführen!}\\
+\cmdPi{wget https://www.musicpd.org/download/mpd/0.21/mpd-0.21.25.tar.xz}\\
+\cmdPi{tar xf mpd-0.21.25.tar.xz}\comment{Quellcode entpacken}\\
+\cmdPi{cd mpd-0.21.25}\\
 
-\subsection{Projekt \texttt{RPi-Jukebox-RFID} von \textit{github} klonen und installieren}
-\cmdPi{git clone https://github.com/MiczFlor/RPi-Jukebox-RFID.git}\\
-\cmdPi{cd RPi-Jukebox-RFID}
+\newpage
+Unter
+\url{https://www.musicpd.org/doc/html/user.html#compiling-from-source}
+ist der eigentliche Kompiliervorgang beschrieben. Hier nur die
+notwendigen Kommandos:\\
+\cmdPi{echo apt install meson g++ \textbackslash\\
+ libpcre3-dev libmad0-dev libmpg123-dev libid3tag0-dev \textbackslash\\
+ libflac-dev libvorbis-dev libopus-dev libogg-dev \textbackslash\\
+ libadplug-dev libaudiofile-dev libsndfile1-dev libfaad-dev \textbackslash\\
+ libfluidsynth-dev libgme-dev libmikmod-dev libmodplug-dev \textbackslash\\
+ libmpcdec-dev libwavpack-dev libwildmidi-dev \textbackslash\\
+ libsidplay2-dev libsidutils-dev libresid-builder-dev \textbackslash\\
+ libavcodec-dev libavformat-dev \textbackslash\\
+ libmp3lame-dev libtwolame-dev libshine-dev \textbackslash\\
+ libsamplerate0-dev libsoxr-dev libbz2-dev \textbackslash\\
+ libcdio-paranoia-dev libiso9660-dev libmms-dev \textbackslash\\
+ libzzip-dev libcurl4-gnutls-dev libyajl-dev libexpat-dev \textbackslash\\
+ libasound2-dev libao-dev libjack-jackd2-dev libopenal-dev \textbackslash\\
+ libpulse-dev libshout3-dev libsndio-dev \textbackslash\\
+ libmpdclient-dev libnfs-dev libsmbclient-dev \textbackslash\\
+ libupnp-dev libavahi-client-dev libsqlite3-dev \textbackslash\\
+ libsystemd-dev libgtest-dev libboost-dev libicu-dev \textbackslash\\
+ libchromaprint-dev libgcrypt20-dev}
+ \comment{alle benötigten Bibliotheken installieren}\\
+\cmdPi{}\comment{Konfiguration des Quellcode-Projektes für den Kompilationsvorgang:}\\
+\cmdPi{meson . output/release -{}-buildtype=debugoptimized -Db\_ndebug=true}\\
+\cmdPi{meson configure output/release}\comment{Anzeige der Compileroptionen}\\
+\cmdPi{ninja -C output/release}\comment{Kompiliervorgang starten}
 
-In der Datei requirements.txt ist (vermutlich au einem alten Stand
-herrührend) das Paket spidev auskommentiert.
+Die Kompilierung besteht aus ca. 632 einzelnen Modulen. Entsprechend
+dauert dieser Vorgang auf einem {\RPi} 3B+ ca. 15\,--\,20 Minuten. Er
+läuft aber erstaunlich unproblematisch durch\dots \ \smiley{smile}
 
-\cmdPi{nano requirements.txt}\\
-\editor{\# Library dependencies for the python code.  You need to install these with\\
-        \# `sudo pip install -r requirements.txt` before you can run this.\\
-        \\
-        \#\#\#\# ESSENTIAL LIBRARIES FOR MAIN FUNCTIONALITY \#\#\#\#\\
-        \# related libraries.\\
-        evdev==0.7.0\\
-        git+git://github.com/lthiery/SPI-Py.git\#egg=spi-py\\
-        youtube\_dl\\
-        pyserial\\
-%        \sout{\# spidev - currently installed via apt-get}\comment{eben nicht!}\\
-%        \textcolor{blue}{\# added by schlizbäda:\\ spidev}\\
-        \textcolor{red}{\# spidev - currently installed via apt-get}\comment{eben nicht!}\\
-        RPi.GPIO\\
-        pi-rc522
-       }
-       
+Bewusst weggelassen wird das folgende Kommando, das den soeben
+kompilierten \software{mpd} unter \filenam{/usr/local/bin} installieren
+würde. Der {\autor} hat keine Ahnung, wie er den neuen \software{mpd} an
+diesem neuen Pfad (\filenam{/usr/local/bin} statt \filenam{/usr/bin}) so
+in das Betriebssystem einbinden muss, dass die restlichen Programme gar
+nicht "`merken"', dass hier etwas \textit{gefaked} wurde.
+\smiley{sarcastic}\\
+\cmdPi{\# sudo ninja -C output/release install}
+\comment{nicht ausgeführt!}
+
+
+\subsection{Installieren des \software{mpd}}
+Nun muss der neu kompilierte \software{mpd} so installiert werden, dass
+er beim Booten vom Betriebssystem geladen und gestartet wird. Dies
+geschieht mittlerweile in den meisten GNU/Linux-Distributionen, so auch
+in \os{Raspbian} mittels des Init-Systems \software{systemd}.
+
+Zunächst wird das neu erstellte Kompilat nach \filenam{/usr/bin}
+kopiert und der bereits bestehende symbolische Link aus Kapitel
+\ref{sect:apt-get_mpd} auf die neue Binary "`umgebogen"':\\
+\cmdPi{cd /usr/bin}\\
+\cmdPi{\begin{smaller}sudo cp /home/pi/mpd-0.21.25/output/release/mpd /usr/bin/mpd-0.21.25\_compiled\_by\_schlizbaeda\end{smaller}}\\
+%\cmdPi{sudo rm /usr/bin/mpd}\comment{Evtl. muss der bestehende Link gelöscht werden}\\
+\cmdPi{sudo ln -s /usr/bin/mpd-0.21.25\_compiled\_by\_schlizbaeda \ \ mpd}\\
+
 \begin{bclogo}[arrondi = 0.2, logo = \bcinfo, ombre = true, epOmbre = 0.25, couleurOmbre = black!30,blur]{Achtung}
-Im Gegensatz zum Kommentar in der roten Zeile wird das Paket
-\software{spidev} nicht\\installiert. Dies führt zu folgender
-Fehlermeldung beim Kommando:\\
-\cmdPi{pip install -r requirements.txt}
+Leider reicht das bloße Rüberkopieren der neuen Version von
+\software{mpd} nach \filenam{/usr/bin} nicht aus, um die alte Variante
+1:1 durch die neue Variante zu ersetzen.
 \end{bclogo}
 
-\begin{smaller}
-\begin{verbatim}
-Looking in indexes: https://pypi.org/simple, https://www.piwheels.org/simple
-Collecting evdev==0.7.0 (from -r requirements.txt (line 7))
-  Downloading https://files.pythonhosted.org/packages/67/15/eac376f3e1fc1960a54439c21459b2582e68340001aff83b4ace9e5bd110/evdev-0.7.0.tar.gz
-Collecting spi-py from git+git://github.com/lthiery/SPI-Py.git#egg=spi-py (from -r requirements.txt (line 8))
-  Cloning git://github.com/lthiery/SPI-Py.git to /tmp/pip-install-uDNQOf/spi-py
-Collecting youtube_dl (from -r requirements.txt (line 9))
-  Downloading https://files.pythonhosted.org/packages/d0/b3/c3d42f6bbf91da104c272950d30923c222061d7323aa43dcf975a6e8e2c2/youtube_dl-2020.3.24-py2.py3-none-any.whl (1.8MB)
-    100% |xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx| 1.8MB 129kB/s 
-Collecting pyserial (from -r requirements.txt (line 10))
-  Downloading https://files.pythonhosted.org/packages/0d/e4/2a744dd9e3be04a0c0907414e2a01a7c88bb3915cbe3c8cc06e209f59c30/pyserial-3.4-py2.py3-none-any.whl (193kB)
-    100% |xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx| 194kB 608kB/s 
-Requirement already satisfied: RPi.GPIO in /usr/lib/python2.7/dist-packages (from -r requirements.txt (line 12)) (0.7.0)
-Collecting pi-rc522 (from -r requirements.txt (line 13))
-  Downloading https://files.pythonhosted.org/packages/84/f2/e3d02257949e9caa9bff26044e0185e743ff45d3e0e099a93880e10bf718/pi-rc522-2.2.1.tar.gz
-    Complete output from command python setup.py egg_info:
-    Traceback (most recent call last):
-      File "<string>", line 1, in <module>
-      File "/tmp/pip-install-uDNQOf/pi-rc522/setup.py", line 11, in <module>
-        from pirc522 import __version__  # flake8: noqa
-      File "pirc522/__init__.py", line 4, in <module>
-        from .rfid import RFID
-      File "pirc522/rfid.py", line 2, in <module>
-        import spidev
-    ImportError: No module named spidev
-\end{verbatim}
-\textcolor{red}{Command "python setup.py egg\_info"\ failed with error code 1 in /tmp/pip-install-uDNQOf/pi-rc522/}
-\end{smaller}
+% \software{mpd} wird beim Booten
+%der {\Bezeichnung} über \software{systemd} gestartet. Die Datei 
+%\filenam{/etc/systemd/system/mpd.service} muss angepasst werden.
 
-\textbf{Deshalb die Python-Software so installieren:}\\
-\cmdPi{echo spidev >spidev.txt}\\
-\cmdPi{pip install -r spidev.txt}\\
-\cmdPi{pip install -r requirements.txt}
+Der Hintergrunddienst \software{mpd} wird beim Hochfahren der
+{\Bezeichnung} automatisch über \software{systemd} gestartet. Allerdings
+schlägt der Start des neu kompilierten mpd fehl. Nun wäre interessant,
+warum es nicht funktioniert. Dies findet man mit folgendem Kommando
+heraus:\\
+\cmdPi{systemctl status mpd.service}\\
+\stdout{\textcolor{red}{\#} mpd.service - Music Player Daemon\\
+\_\ \ Loaded: loaded (/etc/systemd/system/mpd.service; enabled; vendor preset: enabled)\\
+\_\ \ Active: \textcolor{red}{failed} (Result: exit-code) since Mon 2020-08-24 21:02:39 CEST; 13s ago\\
+\_\ \ \ \ Docs: man:mpd(1)\\
+\_\ \ \ \ \ \ \ \ \ \ man:mpd.conf(5)\\
+\_\ \ \ \ \ \ \ \ \ \ file:///usr/share/doc/mpd/user-manual.html\\
+\_\ Process: 6483 ExecStart=/usr/bin/mpd --no-daemon \$MPDCONF \textcolor{red}{(code=exited, status=1/FAILURE)}\\
+\_Main PID: 6483 (code=exited, status=1/FAILURE)\\
+\\
+Aug 24 21:02:38 phoniebox1 systemd[1]: Starting Music Player Daemon...\\
+Aug 24 21:02:39 phoniebox1 mpd[6483]: exception: No configuration file found\\
+Aug 24 21:02:39 phoniebox1 systemd[1]: mpd.service: Main process exited, code=exited, status=1/FAILURE\\
+Aug 24 21:02:39 phoniebox1 systemd[1]: mpd.service: Failed with result 'exit-code'.\\
+Aug 24 21:02:39 phoniebox1 systemd[1]: \textcolor{red}{Failed to start Music Player Daemon.}
+}
 
-Hiermit läuft die Python-Installation fehlerfrei durch!
-
-
-\subsection{Einbinden des RFID-Lesers als Python(?)-Event}
-\label{sect:evdev}
-\cmdPi{pip install evdev}
-\begin{smaller}
-\begin{verbatim}
-Looking in indexes: https://pypi.org/simple, https://www.piwheels.org/simple
-Requirement already satisfied: evdev in /home/pi/.local/lib/python2.7/site-packages (0.7.0)
-\end{verbatim}
-\end{smaller}
-
-\begin{bclogo}[logo = \bclampe, noborder = true]{Hinweis}
-Aufgrund der obigen Meldung scheint das Python2-Paket \texttt{evdev}
-bereits aktuell zu sein. \textcolor{red}{Viel wichtiger ist aber, dass
-diese Bibliothek anschließend auch für \software{Python3} installiert
-wird!}
+\software{systemd} erkannte, dass das Aufrufkommando \cmd{/usr/bin/mpd 
+--no-daemon /usr/bin/mpd --no-daemon \$MPDCONF} mit einem fehlerhaften
+Exitcode ungleich 0 beendet wurde. Im neu kompilierten \software{mpd}
+trat also ein Fehler auf. Letzlich liegt es offenbar daran, dass mit dem
+neuen \software{mpd} auf die Shellvariable \cmd{\$MPDCONF} irgendwie
+nicht richtig zugegriffen werden kann. 
+\begin{bclogo}[logo = \bclampe, noborder = true]{Jamileckstamårsch!}
+Das muss der Linux-Dauernoob {\autor} nicht verstehen!
 \end{bclogo}
+Der \textit{quick+dirty}-Ansatz vom {\autor} besteht darin, die
+Servicedatei von \software{systemd} so anzupassen, dass der Pfad der
+Konfigdatei \filenam{/etc/mpd.conf} nicht über die ominöse Shellvariable
+\cmd{\$MPDCONF}, sondern direkt angegeben wird. Dazu wird die
+Servicedatei angepasst:\\
+\cmdPi{sudo systemctl edit --full mpd.service}
+%\comment{offizielle systemd-Anpassung: startet den Standardeditor (nano)}\\
+\comment{offizielle Bearbeitung der systemd-Servicedatei}\\
+\editor{[Service]\\
+        Type=notify\\
+        EnvironmentFile=/etc/default/mpd\\
+        \textcolor{red}{\#}ExecStart=/usr/bin/mpd --no-daemon \$MPDCONF \textcolor{red}{\# auskommentiert!\\
+        \# adjusted by schlizbäda at 2020-08-16:\\
+        ExecStart=/usr/bin/mpd --no-daemon /etc/mpd.conf}
+       }
 
-\cmdPi{pip3 install evdev}
-\begin{smaller}
-\begin{verbatim}
-Looking in indexes: https://pypi.org/simple, https://www.piwheels.org/simple
-Collecting evdev
-  Downloading https://www.piwheels.org/simple/evdev/evdev-1.3.0-cp37-cp37m-linux_armv7l.whl (98kB)
-    100% |xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx| 102kB 628kB/s 
-Installing collected packages: evdev
-Successfully installed evdev-1.3.0
-\end{verbatim}
-\end{smaller}
-
-
-\subsection{Webserver \software{lighttpd} für die Web-App der {\Bezeichnung} einrichten}
-Auch bei der Web-App läuft's ganz und gar nicht wie geschmiert.
-\smiley{nosmile}
-
-\textbf{Datei \filenam{/etc/lighttpd/lighttpd.conf} bearbeiten}\\
-In der Datei \filenam{/etc/lighttpd/lighttpd.conf} müssen folgende
-Änderungen (rot) ergänzt werden:\\
-\cmdPi{sudo nano /etc/lighttpd/lighttpd.conf}\\
-\editor{\textcolor{red}{\# adjusted by schlizbäda due to https://github.com/MiczFlor/RPi-Jukebox-RFID/wiki/INSTALL-stretch\#lighttpd-web-server-for-web-app\\
-server.document-root        = "/home/pi/RPi-Jukebox-RFID/htdocs"\\
-\#}server.document-root        = "/var/www/html"\\
-server.upload-dirs          = ( "/var/cache/lighttpd/uploads" )\\
-server.errorlog             = "/var/log/lighttpd/error.log"\\
-server.pid-file             = "/var/run/lighttpd.pid"\\
-server.username             = "www-data"\\
-server.groupname            = "www-data"\\
-server.port                 = 80
-}
-
-\textbf{Datei \filenam{/etc/sudoers} bearbeiten}\\
-Hier muss hinten der rot eingefärbte Teil angehängt werden:\\
-\editor{\#\\
-\# This file MUST be edited with the 'visudo' command as root.\\
-\#\\
-\# Please consider adding local content in /etc/sudoers.d/ instead of\\
-\# directly modifying this file.\\
-\#\\
-\# See the man page for details on how to write a sudoers file.\\
-\#\\
-Defaults        env\_reset\\
-Defaults        mail\_badpass\\
-Defaults        secure\_path="/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin"
-}
-%\\
-%\# Host alias specification\\
-%\\
-%\# User alias specification\\
-%\\
-%\# Cmnd alias specification\\
-%\\
-%\# User privilege specification\\
-%root    ALL=(ALL:ALL) ALL\\
-%\\
-%\# Allow members of group sudo to execute any command\\
-%%sudo   ALL=(ALL:ALL) ALL\\
-%\\
-%\# See sudoers(5) for more information on "\#include" directives:\\
-%\\
-%\#includedir /etc/sudoers.d\\
-%\\
-\texttt{\\
-\begin{small}%\textcolor{gray}{\vdots}\\
-    \textcolor{red}{\textit{\# added by schlizbäda:\\www-data ALL=(ALL) NOPASSWD: ALL}}
-    \\\textcolor{gray}{\vdots}
-\end{small}}
-
-\textbf{Modul \texttt{fastcgi} für den Webserver \software{lighttpd} konfigurieren}\\
-Damit der Webserver die bei der {\Bezeichnung} zum Einsatz kommenden
-HP-Scrip\-te ausführen kann, muss das Modul \texttt{fastcgi} mit den
-folgenden Kommandos einmalig aktiviert werden:\\
-\cmdPi{sudo lighttpd-enable-mod fastcgi}\\
-\stdout{Enabling fastcgi: ok\\
-        Run "{}service lighttpd force-reload"\ to enable changes}\\
-\cmdPi{sudo lighttpd-enable-mod fastcgi-php}\\
-\stdout{Enabling fastcgi-php: ok\\
-        Run "{}service lighttpd force-reload" to enable changes}
-
-%Möglicherweise ist die Konfiguration noch auf PHP5 eingestellt. Für die
-%{\Bezeichnung} wird aber PHP7 benötigt. Daher muss die Datei
-%\filenam{/etc/lighttpd/conf-available/15-fastcgi-php.conf} angepasst
-%werden.
-%\begin{bclogo}[arrondi = 0.2, logo = \bcinfo, ombre = true, epOmbre = 0.25, couleurOmbre = black!30,blur]{Achtung}
-%Unter \os{Raspbian Buster} kommt mittlerweile \textcolor{red}{PHP7.3}
-%zum Einsatz, nicht mehr PHP7.0! Von daher muss beim Editieren auch die
-%richtige Versionsnummer eingetragen werden.\\
-%Auch dies wurde in der Anleitung unter\\
-%\begin{scriptsize}\url{https://github.com/MiczFlor/RPi-Jukebox-RFID/wiki/INSTALL-stretch#lighttpd-web-server-for-web-app}\end{scriptsize}\\
-%noch nicht berücksichtigt und angepasst!
-%\end{bclogo}
-%\cmdPi{sudo nano /etc/lighttpd/conf-available/15-fastcgi-php.conf}\\
-%\editor{\# -*- depends: fastcgi -*-\\
-%\# /usr/share/doc/lighttpd/fastcgi.txt.gz\\
-%\# http://redmine.lighttpd.net/projects/lighttpd/wiki/Docs:ConfigurationOptions\#mod\_fastcgi-fastcgi\\
-%\\
-%\#\# Start an FastCGI server for php (needs the php5-cgi package)\\
-%fastcgi.server += ( ".php" =>\\
-%\tab[1cm]((\\
-%\tab[2cm]"{}socket" => "/var/run/php/\textcolor{red}{php7.3-fpm.sock}",\\
-%\tab[2cm]"broken-scriptfilename" => "{}enable"\\
-%\tab[1cm]))
-%)}
-
-Die neue Konfiguration des \software{lighttpd}-Webservers neu laden:\\
-\cmdPi{sudo service lighttpd force-reload}
-
-
-\textbf{Upload von Audiodateien über den Webservice ermöglichen}\\
-Um den Webservice für den Upload von Audiodateien auf die {\Bezeichnung}
-zu ertüchtigen, muss die Datei \filenam{/etc/php/7.3/fpm/php.ini}
-angelegt werden. Dazu ist im github-Repository der {\Bezeichnung} eine
-Beispieldatei vorhanden:\\
-\cmdPi{\begin{scriptsize}sudo cp /home/pi/RPi-Jukebox-RFID/misc/sampleconfigs/php.ini.stretch-default.sample /etc/php/\textcolor{red}{7.3}/fpm/php.ini\end{scriptsize}}
-\cmdPi{sudo chown root:root /etc/php/\textcolor{red}{7.3}/fpm/php.ini}\\
-\cmdPi{sudo chmod 644 /etc/php/\textcolor{red}{7.3}/fpm/php.ini}
-
-In der Datei \texttt{/etc/php/7.3/fpm/php.ini} sind folgende Einträge zu
-kontrollieren und gegebenenfalls zu ergänzen:\\
-\cmdPi{sudo nano /etc/php/\textcolor{red}{7.3}/fpm/php.ini}\\
-\editor{file\_uploads = On\\
-upload\_max\_filesize = 0\\
-max\_file\_uploads = 20\\
-post\_max\_size = 0
-}
-
-\cmdPi{sudo service \textcolor{red}{php7.3-fpm} restart}
-
-
-\textbf{Konfigurationsdatei für die Web-App aus der Beispieldatei kopieren}\\
-\cmdPi{\begin{smaller}cp /home/pi/RPi-Jukebox-RFID/htdocs/config.php.sample /home/pi/RPi-Jukebox-RFID/config.php\end{smaller}}
-
-\textbf{Zugriff auf Verzeichnisse \filenam{shared} und \filenam{htdocs} für den Webservice ermöglichen}\\
-Der Zugriff erfolgt unter dem Benutzer \texttt{www-data}, daher muss der
-Zugriff auf die beiden Verzeichnisse für diesen Benutzer über
-Gruppenrechte ermöglicht werden:\\
-\cmdPi{sudo chown -R pi:www-data /home/pi/RPi-Jukebox-RFID/shared}\\
-\cmdPi{sudo chmod -R 775 /home/pi/RPi-Jukebox-RFID/shared}\\
-\cmdPi{sudo chown -R pi:www-data /home/pi/RPi-Jukebox-RFID/htdocs}\\
-\cmdPi{sudo chmod -R 775 /home/pi/RPi-Jukebox-RFID/htdocs}
+\cmdPi{sudo systemctl restart mpd.service}
+\comment{mpd neu starten}\\
 
 
 \newpage
-\textbf{Kontrolle im Browser:}\\
-\begin{figure}[!h]
-\centering
-\includegraphics[width=1\textwidth, angle=0]{software/lighttpd_webserver.png}
-\caption{Aufruf des \software{lighttpd}-Webservers}
-\label{fig:lighttpd_webserver}
-\end{figure}
+\subsection{Konfiguration des \software{mpd}}
+\label{sect:mpd-config}
+Die gesamte Konfiguration des \software{mpd} wird in der Datei
+\filenam{/etc/mpd.conf} vorgenommen. Diese Datei besteht aus Einträgen
+in der Form \textit{Schlüsselwort Wert} und in der Standardauslieferung
+aus vielen Kommentarzeilen. Letztlich müssen folgende Einträge ergänzt
+oder angepasst werden:\\
+\cmdPi{sudo nano /etc/mpd.conf}\\
+\editor{music\_directory    \dq/home/pi/RPi-Jukebox-RFID/shared/audiofolders\dq\\
+playlist\_directory \dq/home/pi/RPi-Jukebox-RFID/playlists\dq\\
+user \ \ \ \ \ \ \ \ \ \ \ \ \ \ \dq root\dq\\
+auto\_update \ \ \ \ \ \ \ \dq yes\dq\\ % (you have to remove the \# in front of that line)\\
+auto\_update\_depth \ \dq 10\dq\\ % (remove the \# and change the value to 10)\\
+%\#mixer\_control \ \ \ \ \ \dq yourAudioIfaceNameHere\dq\\ % (you need to uncomment this line and change the audio iFace shortname)\\
+mixer\_control \ \ \ \ \ \dq Master\dq
+}
+        
+Folgendes Kommando dient dazu, die Bezeichnung für den Eintrag
+\texttt{mixer\_control} herauszufinden:\\
+\cmdPi{amixer scontrols}\comment{liefert z.B. bei \miniamp-Installation}\\
+\stdout{Simple mixer control 'Master',0}
 
-Hintergrunddetails zur Einrichtung des Webservers siehe:\\
-\begin{smaller}
-\url{https://github.com/MiczFlor/RPi-Jukebox-RFID/wiki/INSTALL-stretch#lighttpd-web-server-for-web-app}
-\end{smaller}
+Der \software{mpd} wird mit der neuen Konfiguration mit folgendem
+Kommando gestartet:\\
+\cmdPi{mpc update}
+
+\textbf{Test von \software{mpd}}\\
+Jetzt ist der Zeitpunkt gekommen, einen geschmeidigen Audiotest mit
+\software{mpd} durchzuführen. Dazu zunächst vom PC eine Audiodatei
+auf den {\RPi} in das oben konfigurierte Audioverzeichnis
+\filenam{/home/pi/RPi-Jukebox-RFID/shared/audiofolders} kopieren und
+mit dem Client \software{mpc} abspielen:\\
+\cmdPC{scp /Pfad/Musik.flac pi@phoniebox1:/home/pi/RPi-Jukebox-RFID/shared/audiofolders}
+
+\cmdPi{mpc add /home/pi/RPi-Jukebox-RFID/shared/audiofolders/Musik.flac}\\
+\cmdPi{mpc play}
+
+Sollte keine Musik hörbar sein, mit dem \software{alsamixer} die
+Lautstärke überprüfen und anpassen:\\
+\cmdPi{alsamixer}
+
+(siehe Abbildung \ref{fig:alsamixer})
+

@@ -42,12 +42,12 @@ durch Kontrolle folgender Punkte
 
 \subsection{{\reader} in der \Bezeichnung-Software registrieren}
 \cmdPi{cd /home/pi/RPi-Jukebox-RFID/scripts}\\
-\cmdPi{python2 RegisterDevice.py}\comment{liefert \zB:}\\
+\cmdPi{python3 RegisterDevice.py}\comment{liefert \zB:}\\
 \stdout{Choose the reader from list\\
 0 HID 046a:0011\\
 \textcolor{red}{1 HXGCoLtd Keyboard}\\
 Device Number: \textbf{\textcolor{red}{1}}}\\
-Unter Linux wird der Chipsatz des {\reader}s als \textit{HXGCoLtd
+Unter GNU/Linux wird der Chipsatz des {\reader}s als \textit{HXGCoLtd
 Keyboard} erkannt. Daher ist bei der Abfrage der \texttt{Device Number}
 in diesem Beispiel der Wert \textcolor{red}{1} einzugeben.
 

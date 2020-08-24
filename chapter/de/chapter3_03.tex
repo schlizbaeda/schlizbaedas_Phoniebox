@@ -32,13 +32,13 @@ werden. Dazu sind Anpassungen in zwei Dateien erforderlich:
 \cmdPi{sudo nano /etc/asound.conf}\\
 \editor{pcm.hifiberryMiniAmp \{\\
         \textcolor{white}{\ \ \ \ }type softvol\\
-        \textcolor{white}{\ \ \ \ }slave.pcm "plughw:0"\\
-        \textcolor{white}{\ \ \ \ }control.name "Master"\\
+        \textcolor{white}{\ \ \ \ }slave.pcm \dq plughw:0\dq\\
+        \textcolor{white}{\ \ \ \ }control.name \dq Master\dq\\
         \textcolor{white}{\ \ \ \ }control.card 0\\
         \}\\
         pcm.!default \{\\
         \textcolor{white}{\ \ \ \ }type plug\\
-        \textcolor{white}{\ \ \ \ }slave.pcm "hifiberryMiniAmp"\\
+        \textcolor{white}{\ \ \ \ }slave.pcm \dq hifiberryMiniAmp\dq\\
         \}
        }
 
