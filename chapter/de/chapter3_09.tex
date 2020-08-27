@@ -50,67 +50,63 @@ total 151828
 Um nun diesen beiden Alben zwei neue {\Karte}n zuzuordnen, sind folgende
 Schritte erforderlich:
 \begin{compactitem}
-\item{ID der neuen {\Karte} herausfinden}
-\item{Für jede ID die Shortcut-Datei nacheditieren.} 
-%\item{Playlist als \cmd{*.m3u}-Datei erstellen} # braucht's nicht!
-%%%%
-%\item{Für jede ID die Shortcut-Datei \filenam{/home/pi/RPi-Jukebox-RFID/shared/shortcuts/000???????} anlegen, in der der Name einer \cmd{*.m3u}-Datei eingetragen ist.} 
-%\item{Im Verzeichnis \filenam{/home/pi/RPi-Jukebox-RFID/playlists} die \cmd{*.m3u}-Datei mit dem oben angegebenen Namen anlegen}
+\item{Die einzelnen Audiodateien eines Hörspiels oder Musikalbums ins Verzeichnis\\\filenam{/home/pi/RPi-Jukebox-RFID/shared/audiofolders/\textcolor{red}{ALBUM}} kopieren.}
+\item{m3u-Datei \filenam{\textcolor{red}{ALBUM.m3u}} mit \textit{absoluten Pfadangaben(!)} im Verzeichnis\\\filenam{/home/pi/RPi-Jukebox-RFID/playlists} anlegen.}
+\item{{\Karte} dem Album im Verzeichnis \filenam{/home/pi/RPi-Jukebox-RFID/shared/shortcuts} zuordnen.}
 \end{compactitem}
 
-Zunächst wird eine neue {\Karte} über den {\reader} eingelesen. Dabei
-wird im Unterverzeichnis \filenam{/home/pi/RPi-Jukebox-RFID/shared/shortcuts}
-eine Datei angelegt, die den Namen der Karten-ID hat, \zB \cmd{0009563230}.
-Der Inhalt dieser Datei muss auf den Verzeichnisnamen des Albums oder
-Hörbuchs unter \filenam{/home/pi/RPi-Jukebox-RFID/shared/audiofolders}
-angepasst werden, \zB "`Helloween"'.\\
+Im folgenden wird das Album "`Helloween"' nur durch Verwendung von
+Shellkommandos eingerichtet und einer {\Karte} zugeordnet:
+
+Der erste Schritt, die Audiodateien nach 
+\filenam{/home/pi/RPi-Jukebox-RFID/shared/audiofolders} zu kopieren,
+wurde bereits im vorherigen Abschnitt erläutert.
+
+Zweiter Schritt: Da aber in den einzelnen Unterverzeichnissen (Alben) in
+\\\filenam{/home/pi/RPi-Jukebox-RFID/shared/audiofolders} neben den
+eigentlichen Audiodateien auch noch beliebige andere Dateien 
+abgespeichert sein können, muss es eine Datei geben, in der die Playlist
+abgelegt ist. Dies ist eine im Unterverzeichnis
+\filenam{/home/pi/RPi-Jukebox-RFID/playlists} abgelegte m3u-Datei, deren
+Dateiname gleich lauten muss wie der Name des Unterverzeichnisses mit
+den Audiodateien in
+\filenam{/home/pi/RPi-Jukebox-RFID/shared/audiofolders}, also allgemein
+gesprochen \filenam{\textcolor{red}{ALBUM.m3u}} oder konkret in unserem
+Beispiel \filenam{Helloween.m3u}. Beim Inhalt der m3u-Datei muss darauf
+geachtet werden, dass für jede einzelne Audiodatei der vollständige
+absolute Pfad angegeben wird:\\
+\cmdPi{nano /home/pi/RPi-Jukebox-RFID/playlists/Helloween.m3u}\\
+\stdout{
+/home/pi/RPi-Jukebox-RFID/shared/audiofolders/Helloween/01\_I\_Want\_Out.flac\\
+/home/pi/RPi-Jukebox-RFID/shared/audiofolders/Helloween/02\_Dr.\_Stein.flac\\
+/home/pi/RPi-Jukebox-RFID/shared/audiofolders/Helloween/03\_Future\_World.flac
+}
+
+Weitere Informationen zum Playlist-Format \textit{m3u} findet man unter
+\url{https://de.wikipedia.org/wiki/M3U}.
+
+Schließlich muss im dritten Schritt das Album "`Helloween"' auf unserer
+{\Bezeichnung} noch einer {\Karte} zugeordnet werden:\\
+Um die ID herauszufinden, wird eine neue {\Karte} über den {\reader}
+eingelesen. Dabei wird im Unterverzeichnis
+\filenam{/home/pi/RPi-Jukebox-RFID/shared/shortcuts} eine Datei
+angelegt, die den Namen der Karten-ID hat, \zB \cmd{0009563230}. Der
+Inhalt dieser Datei muss auf den Verzeichnisnamen des Albums oder
+Hörbuchs unter\\
+\filenam{/home/pi/RPi-Jukebox-RFID/shared/audiofolders} angepasst 
+werden, \zB auf "`Helloween"'.\\
 \cmdPi{nano /home/pi/RPi-Jukebox-RFID/shared/shortcuts/0009563230}\\
 \stdout{Helloween}
 
-%\subsection{ID einer neuen {\Karte} ermitteln}
-%Die ID einer {\Karte} wird beim Einlesen durch den {\reader} in der
-%Datei \filenam{/home/pi/RPi-Jukebox-RFID/settings/Latest\_RFID} abgelegt.
-%Nach erfolgtem Einlesen den Inhalt dieser Datei anzeigen:\\
-%\cmdPi{cat /home/pi/RPi-Jukebox-RFID/settings/Latest\_RFID}\\
-%\stdout{0009563230}
-%
-%\subsection{Shortcut-Datei für die soeben ermittelte ID anlegen}
-%Im Unterverzeichnis \filenam{/home/pi/RPi-Jukebox-RFID/shared/shortcuts}
-%wird eine Datei angelegt, deren Dateiname der ermittelten ID, \zB 
-%\cmd{0009563230} entspricht. In dieser Datei wird der Name des
-%Unterverzeichnisses des gewünschten Albums in\\
-%\filenam{/home/pi/RPi-Jukebox-RFID/shared/audiofolders} eingetragen, \zB
-%"`Helloween"'.\\
-%\cmdPi{nano /home/pi/RPi-Jukebox-RFID/shared/shortcuts/0009563230}\\
-%\stdout{Helloween}
-%
-%\subsection{Playlist für dieses Album als \cmd{*.m3u}-Datei erstellen}
-%Die Playlist, die bei Auflegen dieser Karte abgespielt werden soll,
-%muss im Verzeichnis\\ \filenam{/home/pi/RPi-Jukebox-RFID/playlists} als
-%\cmd{*.m3u}-Datei erstellt werden. Dabei handelt es sich einfachsten
-%Fall um eine Textdatei, die in jeder Zeile eine abzuspielende Audiodatei
-%enthält, siehe \url{https://de.wikipedia.org/wiki/M3U}:\\
-%\cmdPi{nano /home/pi/RPi-Jukebox-RFID/playlists/Helloween.m3u}\\
-%\stdout{/home/pi/RPi-Jukebox-RFID/shared/audiofolders/Helloween/01\_I\_Want\_Out.flac\\
-%        /home/pi/RPi-Jukebox-RFID/shared/audiofolders/Helloween/02\_Dr.\_Stein.flac\\
-%        /home/pi/RPi-Jukebox-RFID/shared/audiofolders/Helloween/03\_Future\_World.flac
-%       }
-
 Nach erneutem Auflegen der {\Karte} mit der ID \cmd{0009563230} werden
-%die in der Playlist hinterlegten Musiktitel des Albums \textit{Helloween
-%-- The Best, The Rest, The Rare} abgespielt.
-die im Verzeichnis \filenam{/home/pi/RPi-Jukebox-RFID/shared/audiofolders/Helloween}
-abgelegten Audiodateien abgespielt.
+die in der Playlist \filenam{/home/pi/RPi-Jukebox-RFID/playlists/Helloween.m3u}
+hinterlegten Musiktitel abgespielt.
 
-%\begin{bclogo}[logo = \bclampe, noborder = true]{Hinweis}
-%Wichtig ist bei diesem Vorgehen, dass sowohl der Dateiname der
-%Playlist als auch das Albumsverzeichnis genau der Bezeichnung aus der
-%Shortcut-Datei entsprechen muss, hier also "`Helloween"'!
-%\end{bclogo}
 
 \subsection{{\Karte} über die Webanwendung registrieren}
 Alternativ kann eine {\Karte} auch mit Hilfe des Webservices zugeordnet
-werden. Das Vorgehen wird in der folgenden Bilderstrecke dargestellt:
+werden. Das Vorgehen wird in der folgenden Bilderstrecke beispielhaft
+für den zweiten Ordner "`Metallica"' dargestellt:
 
 \begin{figure}[!h]
 \centering
@@ -162,9 +158,9 @@ sowie Tabelle \ref{tab:gpio_rpi}:
 \hline
 \texttt{6}		&	\texttt{31}		&	\textit{volD}		&	Lautstärke verringern	&\\
 \hline
-\texttt{7}		&	\texttt{26}		&	\textit{next}		&	nächster Titel			&\\
+\texttt{7}		&	\texttt{26}		&	\textit{next}		&	nächster Titel			&	\textit{fast forward}\\
 \hline
-\texttt{8}		&	\texttt{24}		&	\textit{prev}		&	vorheriger Titel		&\\
+\texttt{8}		&	\texttt{24}		&	\textit{prev}		&	vorheriger Titel		&	\textit{rewind}\\
 \hline
 \texttt{5}		&	\texttt{29}		&	\textit{halt}		&	Play/Pause				&\\
 \hline

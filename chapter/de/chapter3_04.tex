@@ -5,11 +5,11 @@
 \label{sect:mpd}
 
 Der \software{Music Player Daemon (mpd)} ist eine Server-Anwendung zum
-Abspielen von Musikdateien in den gängigen Audiocodecs wie mp3, Ogg
-Vorbis, FLAC, AAC, Mod oder WAV. Clientsoftware kann den \software{mpd}
-über dessen Protokoll sowohl lokal als auch über das Netzwerk steuern.
-Damit ist er ideal für die Audiowiedergabe auf der {\Bezeichnung}
-geeignet.\\
+Abspielen von Musikdateien in den gängigen Audiocodecs wie \textit{mp3,
+Ogg Vorbis, FLAC, AAC, Mod} oder \textit{WAV}. Clientsoftware kann den
+\software{mpd} über dessen Protokoll sowohl lokal als auch über das
+Netzwerk steuern. Damit ist er ideal für die Audiowiedergabe auf der
+{\Bezeichnung} geeignet.\\
 Ein relativer Sprung innerhalb der gesamten Playlist für einen schnellen
 Vor- und Rücklauf kann über den \software{mpd}-Standardclient
 \software{mpc} mit dem Kommando \cmd{mpc seekthrough <sec>} abgesetzt
@@ -18,9 +18,11 @@ Pluszeichen} abgesetzt, ein Rücklauf mit negativen Werten.
 
 \begin{bclogo}[logo = \bclampe, noborder = true]{Hinweis}
 Nur leider ist der mit \cmd{apt-get install} aus der
-Rasp\-bian-Dis\-tri\-bu\-tion installierte \software{mpd} fehlerhaft:
+\os{Raspbian}-Dis\-tri\-bu\-tion installierte \software{mpd} fehlerhaft:
 Negative Sprünge für den Rücklauf werden nicht ausgeführt!
-\smiley{nosmile}
+\smiley{nosmile}\\
+Es tritt nur ein kurzer Aussetzer in der aktuell wiedergegebenen
+Audiodatei auf.
 \end{bclogo}
 
 Dieses Problem wurde im \forum bereits diskutiert:\\
@@ -66,6 +68,7 @@ sich einigermaßen zügig zum Laufen zu bringen. Die Kompilierung des
 
 
 \subsection{Herunterladen und Kompilieren des \software{mpd}}
+\label{sect:mpd_recompile}
 Auf der Homepage des \software{mpd}-Projektes ist die aktuell
 veröffentlichte Programmversion ("`stable"') direkt auf der Hauptseite
 unter \url{https://www.musicpd.org/} angegeben, siehe Abbildung
@@ -108,14 +111,15 @@ notwendigen Kommandos:\\
  libupnp-dev libavahi-client-dev libsqlite3-dev \textbackslash\\
  libsystemd-dev libgtest-dev libboost-dev libicu-dev \textbackslash\\
  libchromaprint-dev libgcrypt20-dev}
- \comment{alle benötigten Bibliotheken installieren}\\
-\cmdPi{}\comment{Konfiguration des Quellcode-Projektes für den Kompilationsvorgang:}\\
+ \comment{alle benötigten Bibliotheken installieren}
+ 
+Konfiguration des Quellcode-Projektes für den Kompilationsvorgang:\\
 \cmdPi{meson . output/release -{}-buildtype=debugoptimized -Db\_ndebug=true}\\
 \cmdPi{meson configure output/release}\comment{Anzeige der Compileroptionen}\\
 \cmdPi{ninja -C output/release}\comment{Kompiliervorgang starten}
 
 Die Kompilierung besteht aus ca. 632 einzelnen Modulen. Entsprechend
-dauert dieser Vorgang auf einem {\RPi} 3B+ ca. 15\,--\,20 Minuten. Er
+dauert dieser Vorgang auf einem {\RPi} 3B ca. 15\,--\,20 Minuten. Er
 läuft aber erstaunlich unproblematisch durch\dots \ \smiley{smile}
 
 Bewusst weggelassen wird das folgende Kommando, das den soeben
@@ -176,7 +180,7 @@ Aug 24 21:02:39 phoniebox1 systemd[1]: \textcolor{red}{Failed to start Music Pla
 }
 
 \software{systemd} erkannte, dass das Aufrufkommando \cmd{/usr/bin/mpd 
---no-daemon /usr/bin/mpd --no-daemon \$MPDCONF} mit einem fehlerhaften
+--no-daemon \$MPDCONF} mit einem fehlerhaften
 Exitcode ungleich 0 beendet wurde. Im neu kompilierten \software{mpd}
 trat also ein Fehler auf. Letzlich liegt es offenbar daran, dass mit dem
 neuen \software{mpd} auf die Shellvariable \cmd{\$MPDCONF} irgendwie
@@ -188,7 +192,7 @@ Der \textit{quick+dirty}-Ansatz vom {\autor} besteht darin, die
 Servicedatei von \software{systemd} so anzupassen, dass der Pfad der
 Konfigdatei \filenam{/etc/mpd.conf} nicht über die ominöse Shellvariable
 \cmd{\$MPDCONF}, sondern direkt angegeben wird. Dazu wird die
-Servicedatei angepasst:\\
+Servicedatei \filenam{/etc/systemd/system/mpd.service} angepasst:\\
 \cmdPi{sudo systemctl edit --full mpd.service}
 %\comment{offizielle systemd-Anpassung: startet den Standardeditor (nano)}\\
 \comment{offizielle Bearbeitung der systemd-Servicedatei}\\
@@ -201,10 +205,43 @@ Servicedatei angepasst:\\
        }
 
 \cmdPi{sudo systemctl restart mpd.service}
-\comment{mpd neu starten}\\
+\comment{mpd neu starten}
 
 
-\newpage
+\subsection{Resümee der Kompilierung von \software{mpd} -- es wäre einfacher gewesen\dots}
+Das im \software{mpd}-Projekt enthaltene
+\software{make}-Installationsskript\\
+\cmd{sudo ninja -C output/release install}\\
+installiert die kompilierte Binärdatei nach \filenam{/usr/local/bin} und
+nicht nach \filenam{/usr/bin}. Dies ist aber -- entgegen meiner ersten
+Einschätzung -- kein Problem, da der Start des \software{mpd} über das
+Init-System \software{systemd} erfolgt. Alle Programmaufrufe, die über
+\software{systemd} gestartet werden, sind mit absolutem Pfad in den
+\software{systemd}-Steuerdateien, den sogenannten Units hinterlegt. Dort
+muss man "`nur"' in der für \software{mpd} zuständigen Unit
+\filenam{/etc/systemd/system/mpd.service} den Aufrufpfad
+\filenam{/usr\textcolor{red}{/local}/bin} im Eintrag \cmd{ExecStart=...}
+setzen. Das im vorigen Kapitel beschiebene Umkopieren der
+Originalversion samt symbolischen Link auf die neu kompilierte Version
+hätte es \textit{vermutlich} gar nicht gebraucht.
+
+Leider habe ich das erst später gemerkt! Aber ich musste dann ohnehin an
+die Unit ran, denn meine neu kompilierte Variante des \software{mpd}
+kann nicht auf die Shellvariable \cmd{\$MPDCONF} zugreifen.
+
+Diesen Sachverhalt habe ich im deutschen{\forum} beschrieben unter\\
+\begin{scriptsize}
+\url{https://forum-raspberrypi.de/forum/thread/45381-schneller-vor-ruecklauf-durch-when-held-auf-next-prev-buttons-buttons-beim-strea/?postID=446062#post446062}
+\end{scriptsize}
+
+Das Init-System \software{systemd} ist unter
+\url{https://ubuntuusers.de/} recht gut beschrieben:
+
+Allgemeine Erklärung: \url{https://wiki.ubuntuusers.de/systemd/}\\
+Steuerdateien (Units): \url{https://wiki.ubuntuusers.de/systemd/Units}\\
+Konfiguration mit \cmd{systemctl}: \url{https://wiki.ubuntuusers.de/systemd/systemctl/}\\
+
+
 \subsection{Konfiguration des \software{mpd}}
 \label{sect:mpd-config}
 Die gesamte Konfiguration des \software{mpd} wird in der Datei
@@ -226,7 +263,7 @@ Folgendes Kommando dient dazu, die Bezeichnung für den Eintrag
 \texttt{mixer\_control} herauszufinden:\\
 \cmdPi{amixer scontrols}\comment{liefert z.B. bei \miniamp-Installation}\\
 \stdout{Simple mixer control 'Master',0}
-
+\os
 Der \software{mpd} wird mit der neuen Konfiguration mit folgendem
 Kommando gestartet:\\
 \cmdPi{mpc update}
@@ -247,4 +284,3 @@ Lautstärke überprüfen und anpassen:\\
 \cmdPi{alsamixer}
 
 (siehe Abbildung \ref{fig:alsamixer})
-
