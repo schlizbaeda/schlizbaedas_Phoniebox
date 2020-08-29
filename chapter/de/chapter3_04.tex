@@ -239,7 +239,28 @@ Das Init-System \software{systemd} ist unter
 
 Allgemeine Erklärung: \url{https://wiki.ubuntuusers.de/systemd/}\\
 Steuerdateien (Units): \url{https://wiki.ubuntuusers.de/systemd/Units}\\
-Konfiguration mit \cmd{systemctl}: \url{https://wiki.ubuntuusers.de/systemd/systemctl/}\\
+Konfiguration mit \cmd{systemctl}: \url{https://wiki.ubuntuusers.de/systemd/systemctl/}
+
+\begin{bclogo}[logo = \bclampe, noborder = true]{Hinweis zu einem echten Problem von FLOSS}
+Dies ist ein Beispiel für ein markantes und ernstzunehmendes Problem von
+FLOSS (Free/Libre Open Source Software): So behaupten viele Befürworter
+von FLOSS (auch der \autor), dass nur mit quelloffenem Code verhindert
+werden könne, fehlerhaften Code oder gar Schadcode auf ein System
+einzuspielen. Oder zumindest, dass dies nachvollziehbar sei.\\
+Allerdings tut die aus dem Raspbian-Repository installierte
+Programmversion von \software{mpd} nicht das, was im heruntergeladenen
+Quellcode drinsteht. Der \software{mpd} führt keinen Rücklauf aus. Aber
+wenn der heruntergeladene Code kompiliert wird, tut er es plötzlich
+doch. Es stellt sich unweigerlich die Frage, welcher Code denn nun für
+die Binärdatei im Raspbian-Repository verwendet wurde und was der
+mit dem von mir heruntergeladenen Code zu tun hat (wenngleich dies beim
+\software{mpd} keine Absicht ist).\\
+Die obige Argumentation, dass ein System genau das macht, was in
+irgendwelchen veröffentlichten Quellcodedateien drinsteht, gilt
+eigentlich nur dann, wenn man das System auch wirklich selbst
+kompiliert!\\
+FLOSS: \url{https://de.wikipedia.org/wiki/Free/Libre_Open_Source_Software}
+\end{bclogo}
 
 
 \subsection{Konfiguration des \software{mpd}}
